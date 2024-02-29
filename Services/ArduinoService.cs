@@ -6,33 +6,33 @@ namespace ScannerWeb.Services
     public class ArduinoService : ISerialService
     {
         public string COM = "";
-        public SerialPort _sPort ;
+        public SerialPort? _sPort;
         public Action<string>? act { get; set; }
         public ArduinoService()
         {
             _sPort = BuildSerialPort();
         }
-        private SerialPort BuildSerialPort()
+        private SerialPort? BuildSerialPort()
         {
-	    try
-	    {
-		if (COM == "")
-			return null;
-            SerialPort sPort = new SerialPort(COM);
-            sPort.BaudRate = 9600;
-            sPort.Parity = Parity.None;
-            sPort.StopBits = StopBits.One;
-            sPort.DataBits = 8;
-            sPort.Handshake = Handshake.None;
-            sPort.RtsEnable = true;
-            sPort.DataReceived += SPort_DataReceived;
-            return sPort;
-	    }
-	    catch (Exception ex)
-	    {
-		Console.WriteLine(ex.Message);
-		return null;
-	    }
+            try
+            {
+                if (COM == "")
+                    return null;
+                SerialPort sPort = new SerialPort(COM);
+                sPort.BaudRate = 9600;
+                sPort.Parity = Parity.None;
+                sPort.StopBits = StopBits.One;
+                sPort.DataBits = 8;
+                sPort.Handshake = Handshake.None;
+                sPort.RtsEnable = true;
+                sPort.DataReceived += SPort_DataReceived;
+                return sPort;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
         }
 
         private async void SPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
@@ -46,14 +46,16 @@ namespace ScannerWeb.Services
 
         public async Task Connect()
         {
-	    if (_sPort is null)
-		return;
+            if (_sPort is null)
+                return;
             _sPort.Open();
             await SendCommand("M");
         }
 
         public Task Disconnect()
         {
+            if (_sPort is null)
+                return Task.CompletedTask;
             _sPort.Close();
             _sPort = BuildSerialPort();
             return Task.CompletedTask;
@@ -67,8 +69,8 @@ namespace ScannerWeb.Services
 
         public Task SendCommand(string cmd)
         {
-	    if (_sPort is null)
-		return Task.CompletedTask;
+            if (_sPort is null)
+                return Task.CompletedTask;
             _sPort.WriteLine(cmd);
             return Task.CompletedTask;
         }

@@ -58,7 +58,7 @@
     </div>
 </div>
 @code {
-    ApexChart<GaugeValue> gauge;
+    ApexChart<GaugeValue>? gauge;
     public decimal Weight = 10;
     public List<GaugeValue> Items = new List<GaugeValue>() { new GaugeValue() { Label = "Weight", Percentage = 10 } };
     public ApexChartOptions<GaugeValue> Options = new ApexChartOptions<GaugeValue>()
