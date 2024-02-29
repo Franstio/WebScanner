@@ -1,0 +1,131 @@
+﻿@page "/"
+@using Models;
+@using ScannerWeb.Services
+@inject ArduinoService service
+<div class="container mx-auto">
+    <div class="grid grid-cols-2 gap-2">
+        
+        <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+            <div class="flex justify-between  w-full mb-5">
+                    <div class="w-full">
+                        <h5 class="inline-flex items-center text-primary dark:text-gray-400 leading-none font-bold text-lg mb-2">
+                            Weight
+                        </h5>
+                        <p class="text-black font-bold text-center dark:text-white text-2xl leading-none ">KG</p>
+                    </div>
+            </div>
+            <ApexChart TItem="GaugeValue" Options="Options" @ref="gauge">
+                <ApexPointSeries   TItem="GaugeValue" Items="Items" 
+                                 SeriesType=SeriesType.RadialBar  YValue="y=>y.Percentage" XValue="x=>x.Label" />
+            </ApexChart>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 md:p-6">
+            <div class="flex justify-between w-full mb-5">
+                <div class="w-full">
+                    <h5 class="inline-flex items-center text-primary dark:text-gray-400 leading-none font-bold text-lg mb-2">
+                        Status
+                    </h5>
+                    <p class="text-black font-bold text-center dark:text-white text-2xl leading-none ">@ServerName</p>
+                </div>
+            </div>
+            <div class="flex flex-col w-full gap-3 justify-between">
+                @foreach (var status in Statuses)
+                {
+                    <div class="flex flex-row justify-between">
+                        <span class="text-bold">@status.StatusDesc</span>
+                        @if (status.Status)
+                        {
+                            <span class="flex w-3 h-3 me-3 text-end bg-gray-900 rounded-full dark:bg-gray-700"></span>
+                        }
+                        else
+                        {
+                            <span class="flex w-5 h-5 text-center me-3 bg-green-500 rounded-full"></span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="bg-white rounded-lg col-span-2 shadow dark:bg-gray-800 p-4 md:p-6">
+            <div class="flex justify-between  w-full mb-5">
+                <div class="w-full">
+                    <h5 class="inline-flex items-center text-primary dark:text-gray-400 leading-none font-bold text-lg mb-2">
+                        Instruction
+                    </h5>
+                    <p class="text-black font-bold text-center dark:text-white text-2xl leading-none ">@Instruction</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    ApexChart<GaugeValue> gauge;
+    public decimal Weight = 10;
+    public List<GaugeValue> Items = new List<GaugeValue>() { new GaugeValue() { Label = "Weight", Percentage = 10 } };
+    public ApexChartOptions<GaugeValue> Options = new ApexChartOptions<GaugeValue>()
+    {
+        PlotOptions = new PlotOptions()
+        {
+
+            RadialBar= new PlotOptionsRadialBar()
+            {
+                DataLabels = new RadialBarDataLabels()
+                {
+                  Name = new RadialBarDataLabelsName()
+                  {
+                      Show=true
+                  },
+                  Value = new RadialBarDataLabelsValue()
+                  {
+                      Show=true,
+                      Formatter = "function (val) {return val + '%'}",
+                  }
+                },
+                EndAngle=90,
+                StartAngle = -90,
+                Track = new Track()
+                {
+                        Background = "#333",
+                }
+
+            }
+        },
+        Fill = new Fill()
+        {
+            Type = FillType.Gradient,
+            Gradient = new FillGradient()
+            {
+                Shade = GradientShade.Light,
+                Type = GradientType.Horizontal,
+                    GradientToColors = new List<string>() { "#0094CE" },
+                    Stops = new(){0,100}
+            }
+        }
+    };
+    public List<MainStatusModel> Statuses = new List<MainStatusModel>();
+    public string ServerName = string.Empty;
+    public string Instruction { get; set; } = "Instruction Here";
+    public CancellationTokenSource cts = new CancellationTokenSource();
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+    protected override async  Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        ServerName = Environment.MachineName;
+        Statuses.AddRange(new List<MainStatusModel>()
+        {
+            new MainStatusModel("Top Sensor"),
+            new MainStatusModel("Bottom Sensor"),
+            new MainStatusModel("Top Door"),
+            new MainStatusModel("Bottom Door"),
+            new MainStatusModel("Status Server")
+        });
+        service.act += BackgroundWork;
+        await service.Connect();
+    }
+
+
+    private void BackgroundWork(string message)
+    {
+        Instruction = message;
+    }
+}
