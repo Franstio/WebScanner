@@ -1,7 +1,17 @@
 ﻿@page "/"
+@using Microsoft.Extensions.Options
 @using Models;
+@using ScannerWeb.Interfaces
+@using ScannerWeb.Observer
 @using ScannerWeb.Services
-@inject ArduinoService service
+@using System.Diagnostics
+@inject NavigationManager Navigation
+@implements IDisposable
+@inject IOptions<ConfigModel> options
+@inject IArduinoService arduinoService
+@inject IMainService mainService
+@inject IHttpContextAccessor httpContext
+@inject IPLCService PLCService
 <div class="container mx-auto">
     <div class="grid grid-cols-2 gap-2">
         
@@ -11,7 +21,7 @@
                         <h5 class="inline-flex items-center text-primary dark:text-gray-400 leading-none font-bold text-lg mb-2">
                             Weight
                         </h5>
-                        <p class="text-black font-bold text-center dark:text-white text-2xl leading-none ">KG</p>
+                        <p class="text-black font-bold text-center dark:text-white text-2xl leading-none ">@Weight.ToString("0.00") KG</p>
                     </div>
             </div>
             <ApexChart TItem="GaugeValue" Options="Options" @ref="gauge">
@@ -28,22 +38,7 @@
                     <p class="text-black font-bold text-center dark:text-white text-2xl leading-none ">@ServerName</p>
                 </div>
             </div>
-            <div class="flex flex-col w-full gap-3 justify-between">
-                @foreach (var status in Statuses)
-                {
-                    <div class="flex flex-row justify-between">
-                        <span class="text-bold">@status.StatusDesc</span>
-                        @if (status.Status)
-                        {
-                            <span class="flex w-5 h-5 text-center me-3 bg-green-500 rounded-full"></span>
-                        }
-                        else
-                        {
-                            <span class="flex w-3 h-3 me-3 text-end bg-gray-900 rounded-full dark:bg-gray-700"></span>
-                        }
-                    </div>
-                }
-            </div>
+            <ScannerWeb.Components.Shared.StatusComponent ShowLock="true"/>
         </div>
         <div class="bg-white rounded-lg col-span-2 shadow dark:bg-gray-800 p-4 md:p-6">
             <div class="flex justify-between  w-full mb-5">
@@ -61,6 +56,8 @@
     ApexChart<GaugeValue>? gauge;
     public decimal Weight = 10;
     public List<GaugeValue> Items = new List<GaugeValue>() { new GaugeValue() { Label = "Weight", Percentage = 10 } };
+    private IDisposable? registration;
+
     public ApexChartOptions<GaugeValue> Options = new ApexChartOptions<GaugeValue>()
     {
         PlotOptions = new PlotOptions()
@@ -101,31 +98,117 @@
             }
         }
     };
-    public List<MainStatusModel> Statuses = new List<MainStatusModel>();
     public string ServerName = string.Empty;
-    public string Instruction { get; set; } = "Instruction Here";
-    public CancellationTokenSource cts = new CancellationTokenSource();
-    [CascadingParameter]
-    private HttpContext? HttpContext { get; set; }
+    public string Instruction { get; set; } = "Idle";
+    public ConfigModel? configModel;
+    private CancellationTokenSource cts = new CancellationTokenSource();
+    private ArduinoWeightObserver arduinoObserver = new ArduinoWeightObserver();
+    private InstructionObserver instructionObserver = new InstructionObserver();
+    private bool isPreRender = false;
+    private bool Locked = true;
     protected override async  Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        ServerName = Environment.MachineName;
-        Statuses.AddRange(new List<MainStatusModel>()
+    }
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        configModel = options.Value;
+        isPreRender = !httpContext.HttpContext!.Response.HasStarted;
+        if (!isPreRender)
         {
-            new MainStatusModel("Top Sensor"),
-            new MainStatusModel("Bottom Sensor"),
-            new MainStatusModel("Top Door"),
-            new MainStatusModel("Bottom Door"),
-            new MainStatusModel("Status Server")
-        });
-        service.act += BackgroundWork;
-        await service.Connect();
+            Task.Run(async delegate { await PLCService.Connect(cts.Token);
+                await PLCService.ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum.YELLOW_LAMP, true);
+            });
+
+            cts = new CancellationTokenSource();
+            arduinoObserver = new ArduinoWeightObserver();
+            instructionObserver = new InstructionObserver();
+            ServerName = Environment.MachineName;
+            arduinoObserver.WeightReceivedEvent += WeightUpdate;
+            arduinoObserver.Subscribe(arduinoService);
+            Task.Run(async delegate { await arduinoService.Connect(cts.Token); });
+            instructionObserver.UpdateInstructionEvent += InstructionUpdate;
+            instructionObserver.Subscribe(mainService);
+            mainService.StartMonitor();
+
+        }
+        //Task.Run(MockWeightScale);
+        //Task.Run(MockIndicator);
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            registration = Navigation.RegisterLocationChangingHandler(LeavePage); 
+        }
+    }
+    private async Task InstructionUpdate(string instruction)
+    {
+        Instruction = instruction;
+        await InvokeAsync(StateHasChanged);
     }
 
-
-    private void BackgroundWork(string message)
+    private async Task WeightUpdate(decimal _weight)
     {
-        Instruction = message;
+        Weight = _weight;
+        string color = "#0094CE";
+
+        decimal p = Items[0].Percentage = (Weight /configModel.MaxWeight) * 100;
+        await Task.Run(async delegate { await PLCService.ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum.RED_LAMP, p > 90); }).ConfigureAwait(false);
+        if (p > 90)
+        {
+            color = "#F44336";
+        }
+        else if (p > 50)
+            color = "#FF5F15";
+        if (gauge is not null)
+        {
+            try
+            {
+                if (configModel is null)
+                    return;
+                gauge.Options.Fill.Gradient.GradientToColors[0] = color;
+                bool animate = Items[0].Percentage <= 100;
+                await gauge.UpdateOptionsAsync(false, animate, false);
+                await gauge.UpdateSeriesAsync(animate);
+                await InvokeAsync(StateHasChanged);
+            }
+            catch(Exception ex)
+            {
+                Trace.WriteLine(ex.Message);
+            }
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+    public ValueTask LeavePage(LocationChangingContext context)
+    {
+        CloseDependecies();
+        return ValueTask.CompletedTask;
+    }
+    public void CloseDependecies()
+    {
+        if (cts is not null)
+        {
+            cts.Cancel();
+            cts.Dispose();
+            cts = new CancellationTokenSource();
+        }
+        instructionObserver.UpdateInstructionEvent -= InstructionUpdate;
+        arduinoObserver.WeightReceivedEvent -= WeightUpdate;
+        arduinoObserver.Unsubscribe();
+        instructionObserver.Unsubscribe();
+        arduinoObserver = new ArduinoWeightObserver();
+        instructionObserver = new InstructionObserver();
+        mainService.CancelMonitor();
+    }
+    public void Dispose()
+    {
+        if (!isPreRender)
+        {
+            CloseDependecies();
+            registration?.Dispose();
+        }
     }
 }

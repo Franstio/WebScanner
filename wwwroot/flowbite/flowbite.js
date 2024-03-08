@@ -2732,7 +2732,7 @@ function initCopyClipboards() {
             }
         }
         else {
-            console.error("The target element with id \"".concat(targetId, "\" does not exist. Please check the data-copy-to-clipboard-target attribute."));
+            Debug.error("The target element with id \"".concat(targetId, "\" does not exist. Please check the data-copy-to-clipboard-target attribute."));
         }
     });
 }
@@ -2881,7 +2881,7 @@ function initCollapses() {
             }
         }
         else {
-            console.error("The target element with id \"".concat(targetId, "\" does not exist. Please check the data-collapse-toggle attribute."));
+            Debug.error("The target element with id \"".concat(targetId, "\" does not exist. Please check the data-collapse-toggle attribute."));
         }
     });
 }
@@ -3067,11 +3067,11 @@ function initDials() {
                 });
             }
             else {
-                console.error("Dial with id ".concat(dialId, " does not exist. Are you sure that the data-dial-toggle attribute points to the correct modal id?"));
+                Debug.error("Dial with id ".concat(dialId, " does not exist. Are you sure that the data-dial-toggle attribute points to the correct modal id?"));
             }
         }
         else {
-            console.error("Dial with id ".concat($parentEl.id, " does not have a trigger element. Are you sure that the data-dial-toggle attribute exists?"));
+            Debug.error("Dial with id ".concat($parentEl.id, " does not have a trigger element. Are you sure that the data-dial-toggle attribute exists?"));
         }
     });
 }
@@ -3174,7 +3174,7 @@ function initDismisses() {
             new Dismiss($dismissEl, $triggerEl);
         }
         else {
-            console.error("The dismiss element with id \"".concat(targetId, "\" does not exist. Please check the data-dismiss-target attribute."));
+            Debug.error("The dismiss element with id \"".concat(targetId, "\" does not exist. Please check the data-dismiss-target attribute."));
         }
     });
 }
@@ -3474,7 +3474,7 @@ function initDrawers() {
             });
         }
         else {
-            console.error("Drawer with id ".concat(drawerId, " not found. Are you sure that the data-drawer-target attribute points to the correct drawer id?"));
+            Debug.error("Drawer with id ".concat(drawerId, " not found. Are you sure that the data-drawer-target attribute points to the correct drawer id?"));
         }
     });
     document.querySelectorAll('[data-drawer-toggle]').forEach(function ($triggerEl) {
@@ -3490,11 +3490,11 @@ function initDrawers() {
                 drawer_1.addEventListenerInstance($triggerEl, 'click', toggleDrawer);
             }
             else {
-                console.error("Drawer with id ".concat(drawerId, " has not been initialized. Please initialize it using the data-drawer-target attribute."));
+                Debug.error("Drawer with id ".concat(drawerId, " has not been initialized. Please initialize it using the data-drawer-target attribute."));
             }
         }
         else {
-            console.error("Drawer with id ".concat(drawerId, " not found. Are you sure that the data-drawer-target attribute points to the correct drawer id?"));
+            Debug.error("Drawer with id ".concat(drawerId, " not found. Are you sure that the data-drawer-target attribute points to the correct drawer id?"));
         }
     });
     document
@@ -3514,11 +3514,11 @@ function initDrawers() {
                 drawer_2.addEventListenerInstance($triggerEl, 'click', hideDrawer);
             }
             else {
-                console.error("Drawer with id ".concat(drawerId, " has not been initialized. Please initialize it using the data-drawer-target attribute."));
+                Debug.error("Drawer with id ".concat(drawerId, " has not been initialized. Please initialize it using the data-drawer-target attribute."));
             }
         }
         else {
-            console.error("Drawer with id ".concat(drawerId, " not found. Are you sure that the data-drawer-target attribute points to the correct drawer id"));
+            Debug.error("Drawer with id ".concat(drawerId, " not found. Are you sure that the data-drawer-target attribute points to the correct drawer id"));
         }
     });
     document.querySelectorAll('[data-drawer-show]').forEach(function ($triggerEl) {
@@ -3534,11 +3534,11 @@ function initDrawers() {
                 drawer_3.addEventListenerInstance($triggerEl, 'click', showDrawer);
             }
             else {
-                console.error("Drawer with id ".concat(drawerId, " has not been initialized. Please initialize it using the data-drawer-target attribute."));
+                Debug.error("Drawer with id ".concat(drawerId, " has not been initialized. Please initialize it using the data-drawer-target attribute."));
             }
         }
         else {
-            console.error("Drawer with id ".concat(drawerId, " not found. Are you sure that the data-drawer-target attribute points to the correct drawer id?"));
+            Debug.error("Drawer with id ".concat(drawerId, " not found. Are you sure that the data-drawer-target attribute points to the correct drawer id?"));
         }
     });
 }
@@ -3848,7 +3848,7 @@ function initDropdowns() {
             });
         }
         else {
-            console.error("The dropdown element with id \"".concat(dropdownId, "\" does not exist. Please check the data-dropdown-toggle attribute."));
+            Debug.error("The dropdown element with id \"".concat(dropdownId, "\" does not exist. Please check the data-dropdown-toggle attribute."));
         }
     });
 }
@@ -4055,7 +4055,7 @@ function initInputCounters() {
             }
         }
         else {
-            console.error("The target element with id \"".concat(targetId, "\" does not exist. Please check the data-input-counter attribute."));
+            Debug.error("The target element with id \"".concat(targetId, "\" does not exist. Please check the data-input-counter attribute."));
         }
     });
 }
@@ -4303,7 +4303,7 @@ function initModals() {
             });
         }
         else {
-            console.error("Modal with id ".concat(modalId, " does not exist. Are you sure that the data-modal-target attribute points to the correct modal id?."));
+            Debug.error("Modal with id ".concat(modalId, " does not exist. Are you sure that the data-modal-target attribute points to the correct modal id?."));
         }
     });
     // toggle modal visibility
@@ -4320,11 +4320,11 @@ function initModals() {
                 modal_1.addEventListenerInstance($triggerEl, 'click', toggleModal);
             }
             else {
-                console.error("Modal with id ".concat(modalId, " has not been initialized. Please initialize it using the data-modal-target attribute."));
+                Debug.error("Modal with id ".concat(modalId, " has not been initialized. Please initialize it using the data-modal-target attribute."));
             }
         }
         else {
-            console.error("Modal with id ".concat(modalId, " does not exist. Are you sure that the data-modal-toggle attribute points to the correct modal id?"));
+            Debug.error("Modal with id ".concat(modalId, " does not exist. Are you sure that the data-modal-toggle attribute points to the correct modal id?"));
         }
     });
     // show modal on click if exists based on id
@@ -4341,11 +4341,11 @@ function initModals() {
                 modal_2.addEventListenerInstance($triggerEl, 'click', showModal);
             }
             else {
-                console.error("Modal with id ".concat(modalId, " has not been initialized. Please initialize it using the data-modal-target attribute."));
+                Debug.error("Modal with id ".concat(modalId, " has not been initialized. Please initialize it using the data-modal-target attribute."));
             }
         }
         else {
-            console.error("Modal with id ".concat(modalId, " does not exist. Are you sure that the data-modal-show attribute points to the correct modal id?"));
+            Debug.error("Modal with id ".concat(modalId, " does not exist. Are you sure that the data-modal-show attribute points to the correct modal id?"));
         }
     });
     // hide modal on click if exists based on id
@@ -4362,11 +4362,11 @@ function initModals() {
                 modal_3.addEventListenerInstance($triggerEl, 'click', hideModal);
             }
             else {
-                console.error("Modal with id ".concat(modalId, " has not been initialized. Please initialize it using the data-modal-target attribute."));
+                Debug.error("Modal with id ".concat(modalId, " has not been initialized. Please initialize it using the data-modal-target attribute."));
             }
         }
         else {
-            console.error("Modal with id ".concat(modalId, " does not exist. Are you sure that the data-modal-hide attribute points to the correct modal id?"));
+            Debug.error("Modal with id ".concat(modalId, " does not exist. Are you sure that the data-modal-hide attribute points to the correct modal id?"));
         }
     });
 }
@@ -4641,7 +4641,7 @@ function initPopovers() {
             });
         }
         else {
-            console.error("The popover element with id \"".concat(popoverID, "\" does not exist. Please check the data-popover-target attribute."));
+            Debug.error("The popover element with id \"".concat(popoverID, "\" does not exist. Please check the data-popover-target attribute."));
         }
     });
 }
@@ -5062,7 +5062,7 @@ function initTooltips() {
             });
         }
         else {
-            console.error("The tooltip element with id \"".concat(tooltipId, "\" does not exist. Please check the data-tooltip-target attribute."));
+            Debug.error("The tooltip element with id \"".concat(tooltipId, "\" does not exist. Please check the data-tooltip-target attribute."));
         }
     });
 }
@@ -5128,11 +5128,11 @@ var Instances = /** @class */ (function () {
     Instances.prototype.addInstance = function (component, instance, id, override) {
         if (override === void 0) { override = false; }
         if (!this._instances[component]) {
-            console.warn("Flowbite: Component ".concat(component, " does not exist."));
+            Debug.warn("Flowbite: Component ".concat(component, " does not exist."));
             return false;
         }
         if (this._instances[component][id] && !override) {
-            console.warn("Flowbite: Instance with ID ".concat(id, " already exists."));
+            Debug.warn("Flowbite: Instance with ID ".concat(id, " already exists."));
             return;
         }
         if (override && this._instances[component][id]) {
@@ -5146,7 +5146,7 @@ var Instances = /** @class */ (function () {
     };
     Instances.prototype.getInstances = function (component) {
         if (!this._instances[component]) {
-            console.warn("Flowbite: Component ".concat(component, " does not exist."));
+            Debug.warn("Flowbite: Component ".concat(component, " does not exist."));
             return false;
         }
         return this._instances[component];
@@ -5156,7 +5156,7 @@ var Instances = /** @class */ (function () {
             return;
         }
         if (!this._instances[component][id]) {
-            console.warn("Flowbite: Instance with ID ".concat(id, " does not exist."));
+            Debug.warn("Flowbite: Instance with ID ".concat(id, " does not exist."));
             return;
         }
         return this._instances[component][id];
@@ -5194,11 +5194,11 @@ var Instances = /** @class */ (function () {
     };
     Instances.prototype._componentAndInstanceCheck = function (component, id) {
         if (!this._instances[component]) {
-            console.warn("Flowbite: Component ".concat(component, " does not exist."));
+            Debug.warn("Flowbite: Component ".concat(component, " does not exist."));
             return false;
         }
         if (!this._instances[component][id]) {
-            console.warn("Flowbite: Instance with ID ".concat(id, " does not exist."));
+            Debug.warn("Flowbite: Instance with ID ".concat(id, " does not exist."));
             return false;
         }
         return true;

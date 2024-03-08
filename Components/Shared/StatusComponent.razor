@@ -1,0 +1,135 @@
+﻿@using ScannerWeb.Interfaces
+@using ScannerWeb.Models
+@using ScannerWeb.Observer
+@using ScannerWeb.Services
+@using System.Diagnostics
+@inject NavigationManager navMan
+@inject IPLCService plcService
+@inject IMainService mainService;
+@inject IHttpContextAccessor accessor
+@implements IDisposable
+@implements IObserver<bool>
+<div class="flex flex-col w-full gap-3 justify-between">
+    <div class="flex flex-row justify-between">
+        <span class="text-bold">@statusServer.StatusDesc</span>
+        @if (statusServer.Status)
+        {
+            <span class="flex w-5 h-5 text-center me-3 bg-green-500 rounded-full"></span>
+        }
+        else
+        {
+            <span class="flex w-5 h-5 me-3 text-end bg-red-900 rounded-full dark:bg-gray-700"></span>
+        }
+    </div>
+    @foreach (var status in Statuses)
+    {
+        <div class="flex flex-row justify-between">
+            <span class="text-bold">@status.StatusDesc</span>
+            @if (status.Status)
+            {
+                <span class="flex w-5 h-5 text-center me-3 bg-green-500 rounded-full"></span>
+            }
+            else
+            {
+                <span class="flex w-5 h-5 me-3 text-end bg-red-900 rounded-full dark:bg-gray-700"></span>
+            }
+        </div>
+    }
+    @if (ShowLock)
+    {
+
+        <button disabled="@Locked" class="mt-2 p-3 bg-primary text-white font-bold  disabled:caret-cyan-200 text-center" @onclick="async(_)=>await LockBtn()">
+            LOCK
+        </button>
+    }
+</div>
+@code {
+    private bool Locked = false;
+    private CancellationTokenSource cts = new CancellationTokenSource();
+    public List<MainStatusModel> Statuses = new List<MainStatusModel>();
+    private PLCIndicatorObserver plcObserver = new PLCIndicatorObserver();
+    private APIServerObserver serverObserver = new APIServerObserver();
+    private MainStatusModel statusServer = new MainStatusModel("Server Status");
+    private IDisposable? reg,unsubscribe;
+    private bool isPreRender = false;
+    [Parameter]
+    public bool ShowLock { get; set; } = false;
+    public async Task UpdateStatus(bool status)
+    {
+        statusServer.Status = status;
+        await InvokeAsync(StateHasChanged);
+    }
+    private async Task LockBtn()
+    {
+        var indicator = PLCIndicatorObserver.PLCIndicatorEnum.BOTTOM_LOCK;
+        var data = await plcService.ReadCommand(1, 10);
+        if (data is null)
+            return;
+        bool bottomstatus = data[(byte)indicator] != 0;
+        await plcService.TriggerManual(indicator, bottomstatus);
+    }
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        isPreRender = !(accessor.HttpContext?.Response.HasStarted ?? false);
+        if (!isPreRender)
+        {
+            plcObserver.IndicatorUpdateEvent += IndicatorUpdate;
+            plcObserver.Subscribe(plcService);
+            serverObserver.UpdateEvent += UpdateStatus;
+            serverObserver.Subscribe(mainService);
+            unsubscribe = plcService.Subscribe(this);
+            Task.Run(async delegate { await plcService.Connect(cts.Token); await plcService.StartReadingInput(cts.Token, 7); });
+        }
+        cts = new CancellationTokenSource();
+        //Task.Run(MockIndicator);
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            reg = navMan.RegisterLocationChangingHandler(Leave);
+        }
+    }
+    private async Task IndicatorUpdate(MainStatusModel[] status)
+    {
+        Statuses = status.ToList();
+        await InvokeAsync(StateHasChanged);
+    }
+    public ValueTask Leave(LocationChangingContext ctx)
+    {
+        CloseDependecies();
+        return ValueTask.CompletedTask;
+    }
+    public void CloseDependecies()
+    {
+
+        plcObserver.IndicatorUpdateEvent -= IndicatorUpdate;
+        serverObserver.UpdateEvent -= UpdateStatus;
+        plcObserver.Unsubscribe();
+    }
+    public void Dispose() 
+    {
+        if (!isPreRender)
+        {
+            CloseDependecies();
+            reg?.Dispose();
+        }
+    }
+
+    public async void OnNext(bool val)
+    {
+        Locked = val;
+        await InvokeAsync(StateHasChanged);
+    }
+    public void OnError(Exception e)
+    {
+        Trace.TraceError(e.Message);
+    }
+    public void OnCompleted()
+    {
+        if (unsubscribe is not null)
+            unsubscribe.Dispose();
+    }
+}

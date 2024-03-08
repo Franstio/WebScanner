@@ -1,26 +1,96 @@
 ﻿@page "/Manual"
+@using ScannerWeb.Interfaces
+@using ScannerWeb.Observer
+@using ScannerWeb.Services
+@using System.Diagnostics
+@implements IDisposable
+@inject NavigationManager navigation
+@inject IPLCService plcService
+@inject IHttpContextAccessor httpContext;
 <div class="container mx-auto p-3">
     <div class="flex gap-3 w-full flex-col"
-    <h3 class="text-primary text-center">
-        MANUAL
-    </h3>
-    <div class="grid grid-cols-2 gap-2">
-        <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center">TOP DOOR</button>
+        <h3 class="text-primary text-center">
+            MANUAL
+        </h3>
+        <div class="rounded mb-2 shadow bg-white p-3">
+            <ScannerWeb.Components.Shared.StatusComponent ShowLock="false"/>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.TOP_SENSOR)">TOP SENSOR</button>
 
-        <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center">BOTTOM DOOR</button>
+            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.BOTTOM_SENSOR)">BOTTOM SENSOR</button>
+            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.TOP_LOCK)">TOP DOOR</button>
 
-        <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center">YELLOW LAMP</button>
+            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.BOTTOM_LOCK)">BOTTOM DOOR</button>
 
-        <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center">GREEN LAMP</button>
+            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.YELLOW_LAMP)">YELLOW LAMP</button>
 
-        <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center">RED LAMP</button>
+            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.GREEN_LAMP)">GREEN LAMP</button>
 
-        <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center">ARD RESET</button>
+            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.RED_LAMP)">RED LAMP</button>
 
-        <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 col-span-2 text-white text-center">SYSTEM REBOOT</button>
-    </div>
+            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center">ARD RESET</button>
+
+            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 col-span-2 text-white text-center">SYSTEM REBOOT</button>
+        </div>
     </div>
 </div>
 @code {
+    private bool isRender = false;
+
+    private CancellationTokenSource cts = new CancellationTokenSource();
+    private IDisposable? reg;
+    public async Task TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum indicator)
+    {
+        var data = await plcService.ReadCommand(1, 10);
+        if (data is null)
+            return;
+        Trace.WriteLine(data[(byte)indicator] + " " + (byte)indicator);
+        bool bottomstatus = data[(byte)indicator] != 0;
+        await plcService.TriggerManual(indicator,bottomstatus);
+    }
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        cts = new CancellationTokenSource();
+        isRender = !(httpContext.HttpContext?.Response.HasStarted ?? false);
+        if (!isRender)
+        {
+
+            Task.Run(async delegate { await plcService.Connect(cts.Token); });
+        }
+
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            reg = navigation.RegisterLocationChangingHandler(Leave);
+        }
+    }
+    public ValueTask Leave(LocationChangingContext ctx)
+    {
+        CloseDependecies();
+        return ValueTask.CompletedTask;
+    }
+    public void CloseDependecies()
+    {
+        if (cts is not null)
+        {
+            cts.Cancel();
+            cts.Dispose();
+            cts = new();
+        }
+    }
+    public void Dispose() {
+        if (!isRender)
+        {
+            CloseDependecies();
+            reg?.Dispose();
+        }
+    }
+
+
 
 }
