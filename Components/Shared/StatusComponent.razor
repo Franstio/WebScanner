@@ -44,7 +44,7 @@
     }
 </div>
 @code {
-    private bool Locked = false;
+    private bool Locked = true;
     private CancellationTokenSource cts = new CancellationTokenSource();
     public List<MainStatusModel> Statuses = new List<MainStatusModel>();
     private PLCIndicatorObserver plcObserver = new PLCIndicatorObserver();
@@ -113,6 +113,7 @@
     {
         if (!isPreRender)
         {
+            OnCompleted();
             CloseDependecies();
             reg?.Dispose();
         }

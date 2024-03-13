@@ -15,8 +15,16 @@
 
 <body>
     <Routes @rendermode="InteractiveServer" />
-    <script src="_framework/blazor.web.js"></script>
+    <script src="_framework/blazor.server.js" autostart="false"></script>
     <script src="/flowbite/flowbite.min.js"></script>
+    <script>
+        Blazor.start().then(() => {
+            Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
+                console.log("RELOAD!!!");
+                document.location.reload();
+            }
+        });
+    </script>
 </body>
 
 </html>

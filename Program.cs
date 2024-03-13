@@ -9,7 +9,7 @@ Trace.Listeners.Add(
                 new TextWriterTraceListener(Console.Out)
             );
 
-Trace.Listeners.Add(new TextWriterTraceListener(@"/home/pi/web/log.txt"));
+//Trace.Listeners.Add(new TextWriterTraceListener(@"/home/pi/web/log.txt"));
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

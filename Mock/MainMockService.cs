@@ -23,13 +23,13 @@ namespace ScannerWeb.Mock
 
         private decimal GetPrevWeight()
         {
-            using (FileStream fs = new FileStream(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data.log"), FileMode.Create))
+            using (FileStream fs = new FileStream(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data.log"), FileMode.Open))
             {
                 using (StreamReader rd = new StreamReader(fs))
                 {
                     char[] buffer = new char[18];
                     rd.Read(buffer, 0, buffer.Length);
-                    string text = new string(buffer);
+                    string text = new string(buffer).Replace("\0","").Replace("\n","");
                     Trace.WriteLine(text);
                     decimal _val;
                     bool s = decimal.TryParse(text, out _val);
