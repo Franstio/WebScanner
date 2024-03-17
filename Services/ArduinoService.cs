@@ -128,7 +128,7 @@ namespace ScannerWeb.Services
                 try
                 {
                     if (_sPort is null)
-                        return Task.CompletedTask;
+                        continue;
 
                     if (_sPort.IsOpen)
                     {

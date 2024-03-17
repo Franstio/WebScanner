@@ -157,7 +157,7 @@
         Weight = _weight;
         string color = "#0094CE";
         logger.LogDebug("From Arduino:" + _weight);
-        decimal p = Items[0].Percentage = (Weight /configModel.MaxWeight) * 100;
+        decimal p = Items[0].Percentage = (Weight /configModel!.MaxWeight) * 100;
 //        Task.Run(async delegate { await PLCService.ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum.RED_LAMP, p > 90); }).ConfigureAwait(false);
         if (p > 90)
         {
