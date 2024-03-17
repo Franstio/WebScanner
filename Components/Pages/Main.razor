@@ -109,6 +109,7 @@
     private bool isPreRender = false;
     private bool Locked = true;
     private bool isRed = false;
+    private string curColor = string.Empty;
     protected override async  Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -183,10 +184,14 @@
             {
                 if (configModel is null)
                     return;
-                gauge.Options.Fill.Gradient.GradientToColors[0] = color;
-                bool animate = Items[0].Percentage <= 100;
-                await gauge.UpdateOptionsAsync(false, animate, false);
-                await gauge.UpdateSeriesAsync(animate);
+                if (curColor != color)
+                {
+                    curColor = color;
+                    gauge.Options.Fill.Gradient.GradientToColors[0] = color;
+                    bool animate = Items[0].Percentage <= 100;
+                    await gauge.UpdateOptionsAsync(false, animate, false);
+                }
+                await gauge.UpdateSeriesAsync(true);
                 await InvokeAsync(StateHasChanged);
             }
             catch(Exception ex)
