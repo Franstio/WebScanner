@@ -19,11 +19,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddSingleton<IArduinoService,ArduinoMockService>();
-builder.Services.AddSingleton<IPLCService,PlcMockService>();
-builder.Services.AddSingleton<IMainService,MainMockService>();
-builder.Services.Configure<ConfigModel>(builder.Configuration.GetSection(nameof(ConfigModel)));
-builder.Services.AddHttpContextAccessor();
 string basepath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Log");
 if (!Directory.Exists(basepath))
     Directory.CreateDirectory(basepath);
@@ -51,6 +46,12 @@ if (builder.Environment.IsDevelopment())
 
     builder.Logging.AddSerilog();
 }
+builder.Services.AddSingleton<IArduinoService,ArduinoMockService>();
+builder.Services.AddSingleton<IPLCService,PlcMockService>();
+builder.Services.AddSingleton<IMainService,MainMockService>();
+builder.Services.Configure<ConfigModel>(builder.Configuration.GetSection(nameof(ConfigModel)));
+builder.Services.AddHttpContextAccessor();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
