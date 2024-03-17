@@ -24,11 +24,11 @@ namespace ScannerWeb.Services
         private bool isRunning = false;
         private ILogger<PLCService> logger;
         private CancellationTokenSource cts = new CancellationTokenSource();
-        public PLCService(IOptions<ConfigModel> opt,ILogger<PLCService> _logger) 
+        public PLCService(IOptions<ConfigModel> opt,ILogger<PLCService> _logger)
         {
+            logger = _logger;
             master = BuildModbusMaster();
             COM = opt.Value.PlcCOM;
-            logger = _logger;
 
         }
         private SerialPort? BuildSerialPort()

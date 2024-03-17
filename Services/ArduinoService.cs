@@ -15,9 +15,9 @@ namespace ScannerWeb.Services
         private ILogger<ArduinoService> logger;
         public ArduinoService(IOptions<ConfigModel> opt,ILogger<ArduinoService> logger)
         {
+            this.logger = logger;
             _sPort = BuildSerialPort();
             COM = opt.Value.ArduinoCOM;
-            this.logger = logger;
         }
         private SerialPort? BuildSerialPort()
         {

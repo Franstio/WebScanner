@@ -63,13 +63,13 @@ namespace ScannerWeb.Services
         private ILogger<MainService> logger;
         public MainService(IArduinoService arduinoService, IPLCService plcService,IOptions<ConfigModel> options, ILogger<MainService> logger)
         {
+            this.logger = logger;
             _arduinoService = arduinoService;
             _plcService = plcService;
             config = options.Value;
             arduinoWeightObserver = new ArduinoWeightObserver();
             arduinoWeightObserver.WeightReceivedEvent += WeightReceived;
             arduinoWeightObserver.Subscribe(arduinoService);
-            this.logger = logger;
         }
         private HttpClient BuildHttpClient()
         {
