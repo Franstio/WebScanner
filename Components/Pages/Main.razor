@@ -108,6 +108,7 @@
     private InstructionObserver instructionObserver = new InstructionObserver();
     private bool isPreRender = false;
     private bool Locked = true;
+    private bool isRed = false;
     protected override async  Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -158,7 +159,18 @@
         string color = "#0094CE";
         logger.LogDebug("From Arduino:" + _weight);
         decimal p = Items[0].Percentage = (Weight /configModel!.MaxWeight) * 100;
-//        Task.Run(async delegate { await PLCService.ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum.RED_LAMP, p > 90); }).ConfigureAwait(false);
+        bool nowRed = p > 90;
+        if (nowRed && !isRed)
+        {
+            isRed = true;
+            await PLCService.ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum.RED_LAMP, true);
+        }
+        else if (!nowRed && isRed)
+        {
+            isRed = false;
+            await PLCService.ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum.RED_LAMP, false);
+        }
+        //        Task.Run(async delegate { await PLCService.ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum.RED_LAMP, p > 90); }).ConfigureAwait(false);
         if (p > 90)
         {
             color = "#F44336";
