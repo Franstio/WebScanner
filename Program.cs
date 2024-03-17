@@ -29,7 +29,7 @@ if (!Directory.Exists(basepath))
     Directory.CreateDirectory(basepath);
 if (builder.Environment.IsDevelopment())
 {
-    Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().MinimumLevel.Debug().WriteTo.Console()
+    Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().MinimumLevel.Debug()
             .WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Information && Matching.FromSource<MainService>()(x)).WriteTo.File(Path.Combine(basepath, "main-info.txt")))
         .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource<MainService>()(x)).WriteTo.File(Path.Combine(basepath, "main-error.txt")))
         .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Information && Matching.FromSource<ArduinoService>()(x)).WriteTo.File(Path.Combine(basepath, "arduino-info.txt")))
