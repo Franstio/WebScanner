@@ -203,7 +203,7 @@ namespace ScannerWeb.Services
         public void StartMonitor()
         {
             cts = new CancellationTokenSource();
-            Task.Run(async delegate { await MonitorAPI(cts.Token); });
+            Task.Run(async delegate { await MonitorAPI(cts.Token); }).ConfigureAwait(false);
         }
         public void CancelMonitor()
         {

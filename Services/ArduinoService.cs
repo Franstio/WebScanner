@@ -98,13 +98,15 @@ namespace ScannerWeb.Services
                 if (sPort is null)
                     return;
                 string res = sPort.ReadLine();
-                logger.LogInformation(res);
+                logger.LogInformation("ARDUINO DATA: "+res);
+                logger.LogInformation("Observer Count: " + Observers.Count);
                 if (Observers is not null && Observers.Count > 0)
                 {
                     for (int i=0;i<Observers.Count;i++)
                         Observers[i].OnNext(res);
                     //CleanObservers();
                 }
+                //sPort.BaseStream.Flush();
             }
             catch(Exception ex)
             {

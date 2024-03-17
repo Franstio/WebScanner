@@ -13,7 +13,7 @@ Trace.Listeners.Add(
                 new TextWriterTraceListener(Console.Out)
             );
 
-//Trace.Listeners.Add(new TextWriterTraceListener(@"/home/pi/web/log.txt"));
+Trace.Listeners.Add(new TextWriterTraceListener(@"/home/pi/web/log.txt"));
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -46,9 +46,9 @@ if (builder.Environment.IsDevelopment())
 
     builder.Logging.AddSerilog();
 }
-builder.Services.AddSingleton<IArduinoService,ArduinoMockService>();
-builder.Services.AddSingleton<IPLCService,PlcMockService>();
-builder.Services.AddSingleton<IMainService,MainMockService>();
+builder.Services.AddSingleton<IArduinoService,ArduinoService>();
+builder.Services.AddSingleton<IPLCService,PLCService>();
+builder.Services.AddSingleton<IMainService,MainService>();
 builder.Services.Configure<ConfigModel>(builder.Configuration.GetSection(nameof(ConfigModel)));
 builder.Services.AddHttpContextAccessor();
 

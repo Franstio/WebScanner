@@ -121,7 +121,7 @@
         {
             Task.Run(async delegate { await PLCService.Connect(cts.Token);
                 await PLCService.ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum.YELLOW_LAMP, true);
-            });
+            }).ConfigureAwait(false);
 
             cts = new CancellationTokenSource();
             arduinoObserver = new ArduinoWeightObserver();
@@ -129,7 +129,7 @@
             ServerName = Environment.MachineName;
             arduinoObserver.WeightReceivedEvent += WeightUpdate;
             arduinoObserver.Subscribe(arduinoService);
-            Task.Run(async delegate { await arduinoService.Connect(cts.Token); await arduinoService.StartListening(cts.Token); },cts.Token).ConfigureAwait(false);
+            Task.Run(async delegate { await arduinoService.Connect(cts.Token);},cts.Token).ConfigureAwait(false);
             instructionObserver.UpdateInstructionEvent += InstructionUpdate;
             instructionObserver.Subscribe(mainService);
             mainService.StartMonitor();
@@ -156,9 +156,9 @@
     {
         Weight = _weight;
         string color = "#0094CE";
-
+        logger.LogDebug("From Arduino:" + _weight);
         decimal p = Items[0].Percentage = (Weight /configModel.MaxWeight) * 100;
-        await Task.Run(async delegate { await PLCService.ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum.RED_LAMP, p > 90); }).ConfigureAwait(false);
+//        Task.Run(async delegate { await PLCService.ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum.RED_LAMP, p > 90); }).ConfigureAwait(false);
         if (p > 90)
         {
             color = "#F44336";

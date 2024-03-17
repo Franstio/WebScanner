@@ -21,15 +21,15 @@ namespace ScannerWeb.Observer
 
         public async void OnNext(string message)
         {
-            if (message.Contains("?") || string.IsNullOrEmpty(message) || message.Split(";").Length < 2)
+//            Trace.WriteLine(message);
+            if (message.Contains("?") || string.IsNullOrEmpty(message) )
             {
                 Trace.WriteLine(message);
                 return;
             }
-            string[] data = message.Split(";");
-            Trace.WriteLine($"msg:{message}\n0:{data[0]}\n1:{data[1]}");
             decimal _weight = 0;
-            bool isValid = decimal.TryParse(data[0].Replace(" ", "").Trim(),out _weight);
+            bool isValid = decimal.TryParse(message.Replace(" ", "").Trim(),out _weight);
+//            Trace.WriteLine("isvalid: " + isValid);
             if (!isValid)
                 return;
             if (WeightReceivedEvent is not null)

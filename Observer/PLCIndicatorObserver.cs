@@ -28,7 +28,7 @@ namespace ScannerWeb.Observer
 
         public async void OnNext(ushort[] value)
         {
-            Trace.WriteLine("Input PLC: "+string.Join(",", value));
+       //     Trace.WriteLine("Input PLC: "+string.Join(",", value));
             MainStatusModel[] Status = new MainStatusModel[7];
             if (value.Length < 7)
             {
