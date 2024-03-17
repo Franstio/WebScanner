@@ -26,6 +26,8 @@ namespace ScannerWeb.Services
         private static SemaphoreSlim sem = new SemaphoreSlim(1);
         private decimal GetPrevWeight()
         {
+            if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data.log")))
+                SetPrevWeight(0);
             using (FileStream fs = new FileStream(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data.log"), FileMode.Open))
             {
                 using (StreamReader rd = new StreamReader(fs))
@@ -34,7 +36,7 @@ namespace ScannerWeb.Services
                     rd.Read(buffer, 0, buffer.Length);
                     string text = new string(buffer);
                     text = text.Trim().Replace("\0","").Replace("\n","");
-                    Trace.WriteLine(text.Trim().Replace("\0","").Replace("\n",""));
+                    logger.LogDebug(text.Trim().Replace("\0","").Replace("\n",""));
                     decimal _val;
                     bool s = decimal.TryParse(text, out _val);
                     return s ? _val : 0;
@@ -58,7 +60,8 @@ namespace ScannerWeb.Services
         private bool isRunning = false;
         private bool isLocked = false;
         private CancellationTokenSource cts = new CancellationTokenSource();
-        public MainService(IArduinoService arduinoService, IPLCService plcService,IOptions<ConfigModel> options)
+        private ILogger<MainService> logger;
+        public MainService(IArduinoService arduinoService, IPLCService plcService,IOptions<ConfigModel> options, ILogger<MainService> logger)
         {
             _arduinoService = arduinoService;
             _plcService = plcService;
@@ -66,6 +69,7 @@ namespace ScannerWeb.Services
             arduinoWeightObserver = new ArduinoWeightObserver();
             arduinoWeightObserver.WeightReceivedEvent += WeightReceived;
             arduinoWeightObserver.Subscribe(arduinoService);
+            this.logger = logger;
         }
         private HttpClient BuildHttpClient()
         {
@@ -77,7 +81,7 @@ namespace ScannerWeb.Services
         private async Task StepUpdated(MainProcessModel step)
         {
             
-            Trace.WriteLine("Move Step "+step.Step);
+            logger.LogInformation("Move Step "+step.Step);
             if (step.FinalStep)
             {
                 try
@@ -96,7 +100,7 @@ namespace ScannerWeb.Services
                         var payload = BuildProcessFinalPayload(step,finalWeight, activity);
                         var res = await client.PostAsJsonAsync(config.SendWeightEndPoint, payload);
                         if (!res.IsSuccessStatusCode)
-                            Trace.WriteLine(await res.Content.ReadAsStringAsync());
+                            logger.LogInformation(await res.Content.ReadAsStringAsync());
                         lockAPI = true;
                         await _plcService.ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum.GREEN_LAMP, false);
                         SetPrevWeight(step.Type == MainProcessModel.ProcessType.Top ? dataKg : 0);
@@ -109,7 +113,7 @@ namespace ScannerWeb.Services
                 }
                 catch(Exception ex)
                 {
-                    Trace.WriteLine($"Final Step {step.Type}: {ex.Message}");
+                    logger.LogError($"Final Step {step.Type}: {ex.Message}");
                 }
                 finally
                 {
@@ -157,7 +161,7 @@ namespace ScannerWeb.Services
             }
             catch(Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
                 isServerAlive = false;
             }
             finally
@@ -183,7 +187,7 @@ namespace ScannerWeb.Services
         }
         private void NotifyInstruction(string message)
         {
-            Trace.WriteLine("Notify " + message);
+            logger.LogInformation("Notify " + message);
             for (int i = 0; i < ObserverInstruction.Count; i++)
                 ObserverInstruction[i].OnNext(message);
 //            CleanObserversInstruction();
@@ -237,14 +241,14 @@ namespace ScannerWeb.Services
                      
                         
                        // Trace.WriteLine(await response.Content.ReadAsStringAsync());
-                                               Trace.WriteLine(response.RequestMessage?.RequestUri);
+                                               logger.LogInformation(response.RequestMessage?.RequestUri?.ToString());
 
                         if (!check)
                             continue;
                         APIPayloadModel? model = JsonSerializer.Deserialize<APIPayloadModel>(await response.Content.ReadAsStringAsync());
                         if (model != null && model.data.Length > 0)
                         {
-                            Trace.WriteLine("Move Step 1");
+                            logger.LogInformation("Move Step 1");
                             MainProcessModel processModel = new MainProcessModel()
                             {
                                 Payload = model.data[0],
@@ -252,7 +256,7 @@ namespace ScannerWeb.Services
                                 Type = model.data[0].doorstatus == 1 ? MainProcessModel.ProcessType.Top : MainProcessModel.ProcessType.Bottom,
                                 FinalStep = false
                             };
-                            Trace.WriteLine(JsonSerializer.Serialize(processModel));
+                            logger.LogInformation(JsonSerializer.Serialize(processModel));
                             if (model.data[0].doorstatus is null || (model.data[0].doorstatus != 1 && model.data[0].doorstatus != 2))
                                 continue ;
                             isLocked = true;
@@ -264,7 +268,7 @@ namespace ScannerWeb.Services
                 }
                 catch(Exception ex)
                 {
-                    Trace.WriteLine("Monitor Error: " +ex.Message);
+                    logger.LogError("Monitor Error: " +ex.Message);
                 }
             }
             isRunning = false;

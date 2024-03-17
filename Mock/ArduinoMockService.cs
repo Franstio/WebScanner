@@ -11,6 +11,11 @@ namespace ScannerWeb.Mock
         private CancellationToken cToken;
         private CancellationTokenSource cts = new CancellationTokenSource();
         private bool isRunning = false;
+        private ILogger<ArduinoMockService> logger;
+        public ArduinoMockService(ILogger<ArduinoMockService> logger)
+        {
+            this.logger = logger;
+        }
         public Task Connect(CancellationToken token)
         {
             cToken = token;
@@ -39,6 +44,7 @@ namespace ScannerWeb.Mock
                     {
                         decimal weight = rnd.Next(0, 100);
                         string payload = $"{weight};0;0;0";
+                        logger.LogInformation(payload);
                         for (int i = 0; i < Observers.Count; i++)
                             if (Observers[i] is not null)
                             Observers[i].OnNext(payload);
@@ -46,14 +52,14 @@ namespace ScannerWeb.Mock
                         await Task.Delay(500);
                     }
                     catch(Exception ex) {
-                        Trace.WriteLine(ex.Message);
+                        logger.LogError(ex.Message);
                     }
                 }
                 isRunning = false;
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
             }
             finally
             {
@@ -84,6 +90,11 @@ namespace ScannerWeb.Mock
             if (!Observers.Contains(observer)) 
                 Observers.Add(observer);
             return new Unsubscribe<string>(Observers,observer);
+        }
+
+        public async Task StartListening(CancellationToken token)
+        {
+            await doWork();
         }
     }
 }

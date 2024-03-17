@@ -45,7 +45,6 @@
         var data = await plcService.ReadCommand(1, 10);
         if (data is null)
             return;
-        Trace.WriteLine(data[(byte)indicator] + " " + (byte)indicator);
         bool bottomstatus = data[(byte)indicator] != 0;
         await plcService.TriggerManual(indicator,bottomstatus);
     }

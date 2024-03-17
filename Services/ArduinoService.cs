@@ -12,10 +12,12 @@ namespace ScannerWeb.Services
         public string COM { get; set; } = "/dev/ttyUSB0";
         private List<IObserver<string>> Observers = new List<IObserver<string>>();
         public SerialPort? _sPort;
-        public ArduinoService(IOptions<ConfigModel> opt)
+        private ILogger<ArduinoService> logger;
+        public ArduinoService(IOptions<ConfigModel> opt,ILogger<ArduinoService> logger)
         {
             _sPort = BuildSerialPort();
             COM = opt.Value.ArduinoCOM;
+            this.logger = logger;
         }
         private SerialPort? BuildSerialPort()
         {
@@ -23,7 +25,7 @@ namespace ScannerWeb.Services
             {
                 if (COM == "")
                     return null;
-                Trace.WriteLine("LOAD ARDUINO");
+                logger.LogDebug("LOAD ARDUINO");
                 SerialPort sPort = new SerialPort(COM);
                 sPort.BaudRate = 4800;
                 sPort.Parity = Parity.None;
@@ -33,15 +35,61 @@ namespace ScannerWeb.Services
                 sPort.RtsEnable = true;
                 sPort.DtrEnable = true;
                 sPort.DataReceived += SPort_DataReceived;
+                sPort.ErrorReceived += SPort_ErrorReceived;
                 return sPort;
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
                 return null;
             }
         }
 
+        private void SPort_ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
+        {
+            Func<SerialErrorReceivedEventArgs,Exception?,string > f = (SerialErrorReceivedEventArgs evet,Exception? exce) =>"Error Arduino Serial Reading";
+            logger.Log(LogLevel.Error, new EventId(), e, null, f);
+            try
+            {
+                SerialPort _sp = (SerialPort)sender;
+                logger.LogError("Error Reading Serial Arduino: " +_sp.ReadLine());
+            }
+            catch(Exception ex)
+            {
+                logger.LogError(ex.Message);
+            }
+        }
+
+        public  Task StartListening(CancellationToken token)
+        {
+            if (COM == string.Empty)
+                return Task.CompletedTask;
+            return Task.CompletedTask;
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    if (_sPort is null)
+                    {
+                        logger.LogDebug("LISTENER PORT IS NULL");
+                        continue;
+                    }
+                    string res = _sPort.ReadLine();
+                    logger.LogInformation("ARDUINO OUTPUT: "+res);
+                    if (Observers is not null && Observers.Count > 0)
+                    {
+                        for (int i = 0; i < Observers.Count; i++)
+                            Observers[i].OnNext(res);
+                        //CleanObservers();
+                    }
+                }
+                catch(Exception ex)
+                {
+                    logger.LogInformation("ARDUINO LISTENER: "+ex.Message);
+                }
+            }
+            return Task.CompletedTask;
+        }
         private  void SPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             try
@@ -50,7 +98,7 @@ namespace ScannerWeb.Services
                 if (sPort is null)
                     return;
                 string res = sPort.ReadLine();
-                Trace.WriteLine(res);
+                logger.LogInformation(res);
                 if (Observers is not null && Observers.Count > 0)
                 {
                     for (int i=0;i<Observers.Count;i++)
@@ -60,7 +108,7 @@ namespace ScannerWeb.Services
             }
             catch(Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                logger.LogInformation(ex.Message);
             }
         }
         private void CleanObservers()
@@ -82,16 +130,16 @@ namespace ScannerWeb.Services
 
                     if (_sPort.IsOpen)
                     {
-                        Trace.WriteLine("Port Opened, Closing..");
+                        logger.LogDebug("Port Opened, Closing..");
                         return Task.CompletedTask;//_sPort.Close();
                     }
                     _sPort.Open();
 
-                    Trace.WriteLine("OPEN ARDUINO");
+                    logger.LogDebug("OPEN ARDUINO");
                 }
                 catch(Exception ex)
                 {
-                    Trace.WriteLine(ex.Message);
+                    logger.LogError(ex.Message);
                 }
             }            
             while (_sPort is not null && !token.IsCancellationRequested && !_sPort.IsOpen) ;

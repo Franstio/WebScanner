@@ -3,12 +3,14 @@
 @using ScannerWeb.Observer
 @using ScannerWeb.Services
 @using System.Diagnostics
+@using Serilog.Context
 @inject NavigationManager navMan
 @inject IPLCService plcService
 @inject IMainService mainService;
 @inject IHttpContextAccessor accessor
 @implements IDisposable
 @implements IObserver<bool>
+@inject ILogger<StatusComponent> logger
 <div class="flex flex-col w-full gap-3 justify-between">
     <div class="flex flex-row justify-between">
         <span class="text-bold">@statusServer.StatusDesc</span>
@@ -33,7 +35,7 @@
             {
                 <span class="flex w-5 h-5 me-3 text-end bg-red-900 rounded-full dark:bg-gray-700"></span>
             }
-        </div>
+        </div>  
     }
     @if (ShowLock)
     {
@@ -79,7 +81,7 @@
             serverObserver.UpdateEvent += UpdateStatus;
             serverObserver.Subscribe(mainService);
             unsubscribe = plcService.Subscribe(this);
-            Task.Run(async delegate { await plcService.Connect(cts.Token); await plcService.StartReadingInput(cts.Token, 7); });
+            Task.Run(async delegate { await plcService.Connect(cts.Token); await plcService.StartReadingInput(cts.Token, 7); }).ConfigureAwait(false);
         }
         cts = new CancellationTokenSource();
         //Task.Run(MockIndicator);
@@ -126,7 +128,7 @@
     }
     public void OnError(Exception e)
     {
-        Trace.TraceError(e.Message);
+        logger.LogError(e.Message);
     }
     public void OnCompleted()
     {

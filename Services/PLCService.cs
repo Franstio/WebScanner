@@ -22,11 +22,13 @@ namespace ScannerWeb.Services
         public string COM { get; set; } = "/dev/ttyUSB1";
         public byte SlaveId { get; set; } = 1;
         private bool isRunning = false;
+        private ILogger<PLCService> logger;
         private CancellationTokenSource cts = new CancellationTokenSource();
-        public PLCService(IOptions<ConfigModel> opt) 
+        public PLCService(IOptions<ConfigModel> opt,ILogger<PLCService> logger) 
         {
             master = BuildModbusMaster();
-            COM = opt.Value.PlcCOM;
+            COM = opt.Value.PlcCOM;            this.logger = logger;
+
         }
         private SerialPort? BuildSerialPort()
         {
@@ -35,7 +37,7 @@ namespace ScannerWeb.Services
 
                 if (COM == string.Empty)
                     return null;
-                Trace.WriteLine("LOAD PLC");
+                logger.LogDebug("LOAD PLC");
                 SerialPort port = new SerialPort(COM);
                 port.BaudRate = 9600;
                 port.DataBits = 8;
@@ -47,7 +49,7 @@ namespace ScannerWeb.Services
             }
             catch(Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
                 return null;
             }
         }
@@ -60,7 +62,7 @@ namespace ScannerWeb.Services
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
                 //MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 //Process.GetCurrentProcess().Kill();
                 return null;
@@ -74,22 +76,22 @@ namespace ScannerWeb.Services
                 {
                     cts = new CancellationTokenSource();
                     if (_port is null)
-                        Trace.WriteLine("Port is null");
+                        logger.LogDebug("Port is null");
                     else
                     {
                         if (_port.IsOpen)
                         {
-                            Trace.WriteLine("Port is already opened");
+                            logger.LogDebug("Port is already opened");
                             return Task.CompletedTask;
                         }
 
-                        Trace.WriteLine("OPEN PLC");
+                        logger.LogDebug("OPEN PLC");
                         _port.Open();
                     }
                 }
                 catch(Exception ex)
                 { 
-                    Trace.WriteLine(ex.Message);
+                    logger.LogError(ex.Message);
                 }
             }            
             while (_port is not null && !ctoken.IsCancellationRequested && !_port.IsOpen) ;
@@ -103,7 +105,7 @@ namespace ScannerWeb.Services
         {
             if (COM == string.Empty)
                 return;
-            Trace.WriteLine("Start Reading PLC");
+            logger.LogDebug("Start Reading PLC");
             try
             {
                 isRunning = true;
@@ -112,10 +114,10 @@ namespace ScannerWeb.Services
                     try
                     {
                         ushort[]? data = await ReadCommand(0, 10);
-                        Trace.WriteLine(String.Join(",", data));
                         if (data is null)
                             continue;
 
+                        logger.LogInformation(String.Join(",", data));
                         for (int i = 0; i < Observers.Count; i++)
                             if (Observers[i] != null)
                                 Observers[i].OnNext(data);
@@ -124,13 +126,13 @@ namespace ScannerWeb.Services
                     }
                     catch (Exception ex)
                     {
-                        Trace.WriteLine(ex.Message);
+                        logger.LogError(ex.Message);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
             }
             finally
             {
@@ -177,7 +179,7 @@ namespace ScannerWeb.Services
 
             if (master is null)
             {
-                Trace.WriteLine("Master Modbus is null");
+                logger.LogDebug("Master Modbus is null");
                 return;
             }
             try
@@ -186,14 +188,14 @@ namespace ScannerWeb.Services
             }
             catch(Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
             }
         }
         public async Task<ushort[]?> ReadCommand(ushort address, ushort numberOfPoint)
         {
             if (master is null)
             {
-                Trace.WriteLine("Master Modbus is null");
+                logger.LogDebug("Master Modbus is null");
                 return null;
             }
             try
@@ -202,7 +204,7 @@ namespace ScannerWeb.Services
             }
             catch(Exception ex)
             {
-                Trace.WriteLine("ERR read plc: "+ex.Message);
+                logger.LogError("ERR read plc: "+ex.Message);
                 return null;
             }
         }

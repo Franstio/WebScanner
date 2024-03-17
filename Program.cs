@@ -3,7 +3,11 @@ using ScannerWeb.Components;
 using ScannerWeb.Interfaces;
 using ScannerWeb.Mock;
 using ScannerWeb.Models;
+using ScannerWeb.Observer;
+using ScannerWeb.Observer.MainProcessOberserver;
 using ScannerWeb.Services;
+using Serilog;
+using Serilog.Filters;
 using System.Diagnostics;
 Trace.Listeners.Add(
                 new TextWriterTraceListener(Console.Out)
@@ -20,6 +24,33 @@ builder.Services.AddSingleton<IPLCService,PlcMockService>();
 builder.Services.AddSingleton<IMainService,MainMockService>();
 builder.Services.Configure<ConfigModel>(builder.Configuration.GetSection(nameof(ConfigModel)));
 builder.Services.AddHttpContextAccessor();
+string basepath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Log");
+if (!Directory.Exists(basepath))
+    Directory.CreateDirectory(basepath);
+if (builder.Environment.IsDevelopment())
+{
+    aLog.Logger = new LoggerConfiguration().Enrich.FromLogContext().MinimumLevel.Debug().WriteTo.Console()
+            .WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Information && Matching.FromSource<MainService>()(x)).WriteTo.File(Path.Combine(basepath, "main-info.txt")))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource<MainService>()(x)).WriteTo.File(Path.Combine(basepath, "main-error.txt")))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Information && Matching.FromSource<ArduinoService>()(x)).WriteTo.File(Path.Combine(basepath, "arduino-info.txt")))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource<ArduinoService>()(x)).WriteTo.File(Path.Combine(basepath, "arduino-error.txt")))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Information && Matching.FromSource<PLCService>()(x)).WriteTo.File(Path.Combine(basepath, "plc-info.txt")))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource<PLCService>()(x)).WriteTo.File(Path.Combine(basepath, "plc-error.txt")))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Information && Matching.FromSource<ArduinoMockService>()(x)).WriteTo.File(Path.Combine(basepath, "arduino-mock-info.txt")))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource<ArduinoMockService>()(x)).WriteTo.File(Path.Combine(basepath, "arduino-mock-error.txt")))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Information && Matching.FromSource<PlcMockService>()(x)).WriteTo.File(Path.Combine(basepath, "plc-mock-info.txt")))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource<PlcMockService>()(x)).WriteTo.File(Path.Combine(basepath, "plc-mock-error.txt")))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Information && Matching.FromSource<MainMockService>()(x)).WriteTo.File(Path.Combine(basepath, "main-mock-info.txt")))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource<MainMockService>()(x)).WriteTo.File(Path.Combine(basepath, "main-mock-error.txt")))
+        //   .WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource(nameof(APIServerObserver))(x))).WriteTo.File(Path.Combine(basepath, "api-observer-error.txt"))
+        // .WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource(nameof(TopProcessObserver))(x))).WriteTo.File(Path.Combine(basepath, "top-process-observer-error.txt"))
+        //.WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource(nameof(BottomProcessObserver))(x))).WriteTo.File(Path.Combine(basepath, "bottom-process-observer-error.txt"))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error).WriteTo.File(Path.Combine(basepath, "Error.txt")))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Debug).WriteTo.File(Path.Combine(basepath, "debug.txt")))
+        .CreateLogger();
+
+    builder.Logging.AddSerilog();
+}
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -30,7 +61,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

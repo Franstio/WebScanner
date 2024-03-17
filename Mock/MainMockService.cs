@@ -23,6 +23,8 @@ namespace ScannerWeb.Mock
 
         private decimal GetPrevWeight()
         {
+            if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data.log")))
+                SetPrevWeight(0);
             using (FileStream fs = new FileStream(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data.log"), FileMode.Open))
             {
                 using (StreamReader rd = new StreamReader(fs))
@@ -30,7 +32,7 @@ namespace ScannerWeb.Mock
                     char[] buffer = new char[18];
                     rd.Read(buffer, 0, buffer.Length);
                     string text = new string(buffer).Replace("\0","").Replace("\n","");
-                    Trace.WriteLine(text);
+                    logger.LogInformation(text);
                     decimal _val;
                     bool s = decimal.TryParse(text, out _val);
                     return s ? _val : 0;
@@ -55,7 +57,8 @@ namespace ScannerWeb.Mock
         private bool isLocked = false;
         private CancellationTokenSource cts = new CancellationTokenSource();
         private static SemaphoreSlim sem = new SemaphoreSlim(1);
-        public MainMockService(IArduinoService arduinoService, IPLCService plcService, IOptions<ConfigModel> options)
+        private ILogger<MainMockService> logger;
+        public MainMockService(IArduinoService arduinoService, IPLCService plcService, IOptions<ConfigModel> options, ILogger<MainMockService> logger)
         {
             _arduinoService = arduinoService;
             _plcService = plcService;
@@ -63,11 +66,12 @@ namespace ScannerWeb.Mock
             arduinoWeightObserver = new ArduinoWeightObserver();
             arduinoWeightObserver.WeightReceivedEvent += WeightReceived;
             arduinoWeightObserver.Subscribe(arduinoService);
+            this.logger = logger;
         }
         private async Task StepUpdated(MainProcessModel step)
         {
 
-            Trace.WriteLine("Move Step " + step.Step);
+            logger.LogInformation("Move Step " + step.Step);
             if (step.FinalStep)
             {
                 try
@@ -91,7 +95,9 @@ namespace ScannerWeb.Mock
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine($"Final Step {step.Type}: {ex.Message}");
+                    logger.LogError($"Final Step {step.Type}: {ex.Message}");
+                    if (isLocked)
+                        isLocked = false;
                 }
             }
             else
@@ -127,7 +133,7 @@ namespace ScannerWeb.Mock
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
                 isServerAlive = false;
             }
             finally
@@ -153,7 +159,7 @@ namespace ScannerWeb.Mock
         }
         private void NotifyInstruction(string message)
         {
-            Trace.WriteLine("Notify " + message);
+            logger.LogInformation("Notify " + message);
             for (int i = 0; i < ObserverInstruction.Count; i++)
                 if (ObserverInstruction[i] is not null)
                     ObserverInstruction[i].OnNext(message);
@@ -214,7 +220,7 @@ namespace ScannerWeb.Mock
                     };
                     if (model != null && model.data.Length > 0)
                     {
-                        Trace.WriteLine("Move Step 1");
+                        logger.LogInformation("Move Step 1");
                         MainProcessModel processModel = new MainProcessModel()
                         {
                             Payload = model.data[0],
@@ -222,7 +228,7 @@ namespace ScannerWeb.Mock
                             Type = model.data[0].doorstatus == 1 ? MainProcessModel.ProcessType.Top : MainProcessModel.ProcessType.Bottom,
                             FinalStep = false
                         };
-                        Trace.WriteLine(JsonSerializer.Serialize(processModel));
+                        logger.LogInformation(JsonSerializer.Serialize(processModel));
                         if (model.data[0].doorstatus is null || (model.data[0].doorstatus != 1 && model.data[0].doorstatus != 2))
                             continue;
                         isLocked = true;
@@ -232,7 +238,7 @@ namespace ScannerWeb.Mock
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine("Monitor Error: " + ex.Message);
+                    logger.LogError("Monitor Error: " + ex.Message);
 
                 }
             }

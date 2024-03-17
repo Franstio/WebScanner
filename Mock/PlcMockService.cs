@@ -17,6 +17,7 @@ namespace ScannerWeb.Mock
         public string COM { get; set; } = "/dev/ttyUSB1";
         public byte SlaveId { get; set; } = 1;
         private bool isRunning = false;
+        private ILogger<PlcMockService> logger;
         private CancellationTokenSource cts = new CancellationTokenSource();
         private Dictionary<ushort,MainStatusModel> Mains = new Dictionary<ushort, MainStatusModel>(
         new List<KeyValuePair<ushort,MainStatusModel>>()  
@@ -30,9 +31,10 @@ namespace ScannerWeb.Mock
             new KeyValuePair<ushort, MainStatusModel>(7,new MainStatusModel("YELLOW LAMP")),
             new KeyValuePair<ushort, MainStatusModel> (8,new MainStatusModel("RED LAMP"))
         });
-        public PlcMockService(IOptions<ConfigModel> opt)
+        public PlcMockService(IOptions<ConfigModel> opt, ILogger<PlcMockService> logger)
         {
             COM = opt.Value.PlcCOM;
+            this.logger = logger;
         }
         public Task Connect(CancellationToken ctoken)
         {
@@ -55,7 +57,7 @@ namespace ScannerWeb.Mock
         {
             if (COM == string.Empty || isRunning)
                 return;
-            Trace.WriteLine("Start Reading PLC");
+            logger.LogInformation("Start Reading PLC");
             isRunning = true;
             try
             {
@@ -65,7 +67,7 @@ namespace ScannerWeb.Mock
                     {
 
                         ushort[]? data = await ReadCommand(0, 10);
-                        Trace.WriteLine(String.Join(",", data));
+                        logger.LogInformation(String.Join(",", data));
                         if (data is null)
                             continue;
                         for (int i = 0; i < Observers.Count; i++)
@@ -76,13 +78,13 @@ namespace ScannerWeb.Mock
                     }
                     catch (Exception ex)
                     {
-                        Trace.WriteLine(ex.Message);
+                        logger.LogError(ex.Message);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
             }
             finally
             {
@@ -117,7 +119,7 @@ namespace ScannerWeb.Mock
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
             }
             return Task.CompletedTask;
         }
@@ -141,7 +143,7 @@ namespace ScannerWeb.Mock
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("ERR read plc: " + ex.Message);
+                logger.LogError("ERR read plc: " + ex.Message);
                 return Task.FromResult<ushort[]?>(null);
             }
         }

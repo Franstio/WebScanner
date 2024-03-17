@@ -12,6 +12,8 @@
 @inject IMainService mainService
 @inject IHttpContextAccessor httpContext
 @inject IPLCService PLCService
+@inject ILogger<Main> logger;
+
 <div class="container mx-auto">
     <div class="grid grid-cols-2 gap-2">
         
@@ -127,7 +129,7 @@
             ServerName = Environment.MachineName;
             arduinoObserver.WeightReceivedEvent += WeightUpdate;
             arduinoObserver.Subscribe(arduinoService);
-            Task.Run(async delegate { await arduinoService.Connect(cts.Token); });
+            Task.Run(async delegate { await arduinoService.Connect(cts.Token); await arduinoService.StartListening(cts.Token); },cts.Token).ConfigureAwait(false);
             instructionObserver.UpdateInstructionEvent += InstructionUpdate;
             instructionObserver.Subscribe(mainService);
             mainService.StartMonitor();
@@ -177,7 +179,7 @@
             }
             catch(Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
             }
         }
         await InvokeAsync(StateHasChanged);
