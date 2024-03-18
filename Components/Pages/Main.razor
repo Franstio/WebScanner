@@ -76,7 +76,7 @@
                   Value = new RadialBarDataLabelsValue()
                   {
                       Show=true,
-                      Formatter = "function (val) {return val + '%'}",
+                            Formatter = "function (val) {return ((Math.round(val * 100) / 100).toFixed(2)) + '%'}",
                   }
                 },
                 EndAngle=90,
