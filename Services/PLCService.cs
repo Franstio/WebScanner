@@ -189,7 +189,7 @@ namespace ScannerWeb.Services
             }
             catch(Exception ex)
             {
-                logger.LogError("Err Writing To PLc: " + ex.Message);
+                logger.LogDebug("Err Writing To PLc: " + ex.Message);
             }
         }
         public async Task<ushort[]?> ReadCommand(ushort address, ushort numberOfPoint)
@@ -205,7 +205,7 @@ namespace ScannerWeb.Services
             }
             catch(Exception ex)
             {
-                logger.LogError("ERR read plc: "+ex.Message);
+                logger.LogDebug("ERR read plc: "+ex.Message);
                 return null;
             }
         }
