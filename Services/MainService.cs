@@ -241,14 +241,14 @@ namespace ScannerWeb.Services
                      
                         
                        // Trace.WriteLine(await response.Content.ReadAsStringAsync());
-                                               logger.LogInformation(response.RequestMessage?.RequestUri?.ToString());
+                                               logger.LogDebug(response.RequestMessage?.RequestUri?.ToString());
 
                         if (!check)
                             continue;
                         APIPayloadModel? model = JsonSerializer.Deserialize<APIPayloadModel>(await response.Content.ReadAsStringAsync());
                         if (model != null && model.data.Length > 0)
                         {
-                            logger.LogInformation("Move Step 1");
+                            logger.LogDebug("Move Step 1");
                             MainProcessModel processModel = new MainProcessModel()
                             {
                                 Payload = model.data[0],
@@ -256,7 +256,7 @@ namespace ScannerWeb.Services
                                 Type = model.data[0].doorstatus == 1 ? MainProcessModel.ProcessType.Top : MainProcessModel.ProcessType.Bottom,
                                 FinalStep = false
                             };
-                            logger.LogInformation(JsonSerializer.Serialize(processModel));
+                            logger.LogDebug(JsonSerializer.Serialize(processModel));
                             if (model.data[0].doorstatus is null || (model.data[0].doorstatus != 1 && model.data[0].doorstatus != 2))
                                 continue ;
                             isLocked = true;

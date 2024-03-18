@@ -43,7 +43,8 @@ LoggerConfiguration _log = new LoggerConfiguration().Enrich.FromLogContext().Min
 if (builder.Environment.IsDevelopment())
 {
     _log = _log.WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error).WriteTo.File(Path.Combine(basepath, "Error.txt")))
-        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Debug).WriteTo.File(Path.Combine(basepath, "debug.txt")));
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Debug).WriteTo.File(Path.Combine(basepath, "debug.txt")))
+            .WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Debug && Matching.FromSource<MainService>()(x)).WriteTo.File(Path.Combine(basepath, "main-debug.txt")));
 }
 Log.Logger = _log.CreateLogger();
 builder.Logging.AddSerilog();
