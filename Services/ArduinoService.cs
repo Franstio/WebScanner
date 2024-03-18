@@ -98,7 +98,7 @@ namespace ScannerWeb.Services
                 SerialPort? sPort = (SerialPort)sender;
                 if (sPort is null)
                     return;
-                string res = sPort.ReadLine();
+                string res = sPort.ReadExisting();
                 logger.LogInformation("ARDUINO DATA: "+res);
                 if (Observers is not null && Observers.Count > 0)
                 {
