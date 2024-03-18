@@ -36,7 +36,7 @@ namespace ScannerWeb.Services
                 sPort.DtrEnable = true;
                 sPort.DataReceived += SPort_DataReceived;
                 sPort.ErrorReceived += SPort_ErrorReceived;
-                sPort.ReadTimeout = 100;
+                sPort.ReadTimeout = 500;
                 return sPort;
             }
             catch (Exception ex)
@@ -100,14 +100,13 @@ namespace ScannerWeb.Services
                     return;
                 string res = sPort.ReadLine();
                 logger.LogInformation("ARDUINO DATA: "+res);
-                logger.LogInformation("Observer Count: " + Observers.Count);
                 if (Observers is not null && Observers.Count > 0)
                 {
                     for (int i=0;i<Observers.Count;i++)
                         Observers[i].OnNext(res);
                     //CleanObservers();
                 }
-                //sPort.BaseStream.Flush();
+                sPort.BaseStream.Flush();
             }
             catch(Exception ex)
             {
