@@ -88,6 +88,7 @@ namespace ScannerWeb.Services
 
                         logger.LogDebug("OPEN PLC");
                         _port.Open();
+                        
                     }
                 }
                 catch(Exception ex)
@@ -127,7 +128,14 @@ namespace ScannerWeb.Services
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError(ex.Message);
+                        logger.LogError(ex.Message + "...Reconnecting.");
+                        if (_port is not null)
+                        {
+                            _port.Close();
+                            _port.Dispose();
+                        }
+                        master = BuildModbusMaster();
+                        _port!.Open();
                     }
                 }
             }

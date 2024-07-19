@@ -31,7 +31,10 @@ namespace ScannerWeb.Observer
             bool isValid = decimal.TryParse(message.Replace(" ", "").Trim(),out _weight);
 //            Trace.WriteLine("isvalid: " + isValid);
             if (!isValid)
+            {
+                Trace.WriteLine(message);
                 return;
+            }
             if (WeightReceivedEvent is not null)
                 await WeightReceivedEvent(_weight);
         }
