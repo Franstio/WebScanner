@@ -79,7 +79,7 @@ namespace ScannerWeb.Services
                     if (_port is null)
                         logger.LogDebug("Port is null");
                     else
-                    {=
+                    {
 
                         logger.LogDebug("OPEN PLC");
                         _port.Open();
