@@ -210,7 +210,7 @@ namespace ScannerWeb.Services
             }
             try
             {
-                return await master.ReadHoldingRegistersAsync(SlaveId, 0, 12);
+                return await master.ReadHoldingRegistersAsync(SlaveId, address, numberOfPoint);
             }
             catch(Exception ex)
             {
