@@ -90,7 +90,7 @@ namespace ScannerWeb.Services
                 { 
                     logger.LogError(ex.Message);
                 }
-            }            
+            }
             while (_port is not null && !ctoken.IsCancellationRequested && !_port.IsOpen) ;
             return Task.CompletedTask;
         }
