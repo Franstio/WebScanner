@@ -215,7 +215,7 @@ namespace ScannerWeb.Services
             catch(Exception ex)
             {
                 logger.LogError("ERR read plc: "+ex.Message);
-                await Task.Delay(500);
+                await Task.Delay(1000);
                 return await ReadCommand(address,numberOfPoint);
             }
         }
