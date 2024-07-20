@@ -25,7 +25,7 @@ LoggerConfiguration _log = new LoggerConfiguration()
         ;
 if (builder.Environment.IsDevelopment())
 {
-    _log = _log.Enrich.FromLogContext().MinimumLevel.Debug().WriteTo.Console()
+    _log = _log.Enrich.FromLogContext().MinimumLevel.Error().WriteTo.Console()
             .WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Information && Matching.FromSource<MainService>()(x)).WriteTo.File(Path.Combine(basepath, "main-info.txt")))
         .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource<MainService>()(x)).WriteTo.File(Path.Combine(basepath, "main-error.txt")))
         .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Information && Matching.FromSource<ArduinoService>()(x)).WriteTo.File(Path.Combine(basepath, "arduino-info.txt")))
