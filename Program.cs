@@ -22,7 +22,15 @@ builder.Services.AddRazorComponents()
 string basepath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Log");
 if (!Directory.Exists(basepath))
     Directory.CreateDirectory(basepath);
-LoggerConfiguration _log = new LoggerConfiguration().Enrich.FromLogContext().MinimumLevel.Debug()
+LoggerConfiguration _log = new LoggerConfiguration()
+        //   .WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource(nameof(APIServerObserver))(x))).WriteTo.File(Path.Combine(basepath, "api-observer-error.txt"))
+        // .WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource(nameof(TopProcessObserver))(x))).WriteTo.File(Path.Combine(basepath, "top-process-observer-error.txt"))
+        //.WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource(nameof(BottomProcessObserver))(x))).WriteTo.File(Path.Combine(basepath, "bottom-process-observer-error.txt"))
+
+        ;
+if (builder.Environment.IsDevelopment())
+{
+    _log = _log.Enrich.FromLogContext().MinimumLevel.Debug()
             .WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Information && Matching.FromSource<MainService>()(x)).WriteTo.File(Path.Combine(basepath, "main-info.txt")))
         .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource<MainService>()(x)).WriteTo.File(Path.Combine(basepath, "main-error.txt")))
         .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Information && Matching.FromSource<ArduinoService>()(x)).WriteTo.File(Path.Combine(basepath, "arduino-info.txt")))
@@ -35,14 +43,7 @@ LoggerConfiguration _log = new LoggerConfiguration().Enrich.FromLogContext().Min
         .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource<PlcMockService>()(x)).WriteTo.File(Path.Combine(basepath, "plc-mock-error.txt")))
         .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Information && Matching.FromSource<MainMockService>()(x)).WriteTo.File(Path.Combine(basepath, "main-mock-info.txt")))
         .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource<MainMockService>()(x)).WriteTo.File(Path.Combine(basepath, "main-mock-error.txt")))
-        //   .WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource(nameof(APIServerObserver))(x))).WriteTo.File(Path.Combine(basepath, "api-observer-error.txt"))
-        // .WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource(nameof(TopProcessObserver))(x))).WriteTo.File(Path.Combine(basepath, "top-process-observer-error.txt"))
-        //.WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error && Matching.FromSource(nameof(BottomProcessObserver))(x))).WriteTo.File(Path.Combine(basepath, "bottom-process-observer-error.txt"))
-
-        ;
-if (builder.Environment.IsDevelopment())
-{
-    _log = _log.WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error).WriteTo.File(Path.Combine(basepath, "Error.txt")))
+        .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Error).WriteTo.File(Path.Combine(basepath, "Error.txt")))
         .WriteTo.Logger(l => l.Enrich.FromLogContext().Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Debug).WriteTo.File(Path.Combine(basepath, "debug.txt")))
             .WriteTo.Logger(l => l.Filter.ByIncludingOnly(x => x.Level == Serilog.Events.LogEventLevel.Debug && Matching.FromSource<MainService>()(x)).WriteTo.File(Path.Combine(basepath, "main-debug.txt")));
 }

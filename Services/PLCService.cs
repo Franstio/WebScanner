@@ -198,6 +198,7 @@ namespace ScannerWeb.Services
             catch(Exception ex)
             {
                 logger.LogDebug("Err Writing To PLc: " + ex.Message);
+                await SendCommand(address, value);
             }
         }
         public async Task<ushort[]?> ReadCommand(ushort address, ushort numberOfPoint)
@@ -214,7 +215,7 @@ namespace ScannerWeb.Services
             catch(Exception ex)
             {
                 logger.LogDebug("ERR read plc: "+ex.Message);
-                return null;
+                return await ReadCommand(address,numberOfPoint);
             }
         }
         public IDisposable Subscribe(IObserver<ushort[]> observer)
