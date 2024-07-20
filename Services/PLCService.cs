@@ -197,6 +197,7 @@ namespace ScannerWeb.Services
             catch(Exception ex)
             {
                 logger.LogDebug("Err Writing To PLc: " + ex.Message);
+                await Task.Delay(500);
                 await SendCommand(address, value);
             }
         }
@@ -214,6 +215,7 @@ namespace ScannerWeb.Services
             catch(Exception ex)
             {
                 logger.LogDebug("ERR read plc: "+ex.Message);
+                await Task.Delay(500);
                 return await ReadCommand(address,numberOfPoint);
             }
         }
