@@ -119,7 +119,6 @@ namespace ScannerWeb.Services
                             if (Observers[i] != null)
                                 Observers[i].OnNext(data);
                         //CleanObservers();
-                        await Task.Delay(100);
                     }
                     catch (Exception ex)
                     {
@@ -131,6 +130,11 @@ namespace ScannerWeb.Services
                         }
                         master = BuildModbusMaster();
                         _port!.Open();
+                    }
+                    finally
+                    {
+
+                        await Task.Delay(1000);
                     }
                 }
             }
