@@ -44,8 +44,10 @@ namespace ScannerWeb.Services
                 port.DataBits = 8;
                 port.Parity = Parity.None;
                 port.StopBits = StopBits.One;
-                port.ReadTimeout = 200;
-                port.WriteTimeout = 200;
+                port.ReadTimeout = 1000;
+                port.WriteTimeout = 1000;
+                port.DtrEnable = true;
+                port.RtsEnable = true;
                 return port;
             }
             catch(Exception ex)
