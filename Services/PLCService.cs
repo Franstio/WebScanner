@@ -199,12 +199,12 @@ namespace ScannerWeb.Services
                 logger.LogDebug("Err Writing To PLc: " + ex.Message);
                 logger.LogError("ERR read plc: " + ex.Message);
                 await Reconnect();
-                await Task.Delay(100);
                 await SendCommand(address, value);
             }
         }
-        public  Task Reconnect()
+        public  async Task Reconnect()
         {
+            await Task.Delay(500);
             try
             {
                 logger.LogError("...Reconnecting.");
@@ -220,7 +220,7 @@ namespace ScannerWeb.Services
             {
                 logger.LogError("Fail Reconnecting, "+ex.Message);
             }
-            return Task.CompletedTask;
+            await Task.Delay(500);
         }
         public async Task<ushort[]?> ReadCommand(ushort address, ushort numberOfPoint)
         {
@@ -242,7 +242,6 @@ namespace ScannerWeb.Services
                 logger.LogError("ERR read plc: " + ex.Message);
                 logger.LogError( "...Reconnecting.");
                 await Reconnect();
-                await Task.Delay(100);
                 return await ReadCommand(address,numberOfPoint);
             }
         }
