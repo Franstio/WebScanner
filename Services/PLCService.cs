@@ -204,7 +204,6 @@ namespace ScannerWeb.Services
         }
         public  async Task Reconnect()
         {
-            await Task.Delay(500);
             try
             {
                 logger.LogError("...Reconnecting.");
@@ -220,7 +219,7 @@ namespace ScannerWeb.Services
             {
                 logger.LogError("Fail Reconnecting, "+ex.Message);
             }
-            await Task.Delay(500);
+            await Task.Delay(1000);
         }
         public async Task<ushort[]?> ReadCommand(ushort address, ushort numberOfPoint)
         {
