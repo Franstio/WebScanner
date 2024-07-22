@@ -204,11 +204,7 @@ namespace ScannerWeb.Services
             catch (Exception ex)
             {
                 if (ex.Message.Contains("Unexpected"))
-                {
-                    await Task.Delay(100);
-                    await SendCommand(address, value, false);
                     return;
-                }
                 logger.LogDebug("Err Writing To PLc: " + ex.Message);
                 logger.LogError("ERR read plc: " + ex.Message);
                 await Reconnect();
