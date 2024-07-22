@@ -80,8 +80,6 @@ namespace ScannerWeb.Services
         }
         private async Task StepUpdated(MainProcessModel step)
         {
-            
-            logger.LogInformation("Move Step "+step.Step);
             if (step.FinalStep)
             {
                 try
@@ -187,7 +185,6 @@ namespace ScannerWeb.Services
         }
         private void NotifyInstruction(string message)
         {
-            logger.LogInformation("Notify " + message);
             for (int i = 0; i < ObserverInstruction.Count; i++)
                 ObserverInstruction[i].OnNext(message);
 //            CleanObserversInstruction();

@@ -64,7 +64,7 @@
     private async Task LockBtn()
     {
         var indicator = PLCIndicatorObserver.PLCIndicatorEnum.BOTTOM_LOCK;
-        var data = await plcService.ReadCommand(1, 10);
+        var data = await plcService.ReadCommand(0, 10);
         if (data is null)
             return;
         bool bottomstatus = data[(byte)indicator] != 0;
