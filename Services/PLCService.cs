@@ -19,7 +19,7 @@ namespace ScannerWeb.Services
         ModbusFactory factory = new ModbusFactory();
         SerialPort? _port;
         IModbusMaster? master;
-        public string COM { get; set; } = string.Empty;
+        public string COM { get; set; } = "/dev/ttyUSB0";
         public byte SlaveId { get; set; } = 1;
         private bool isRunning = false;
         private ILogger<PLCService> logger;
