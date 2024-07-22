@@ -295,6 +295,7 @@ namespace ScannerWeb.Services
             }
             for (int i=0;i<payload.Length;i++)
             {
+                logger.LogCritical($"Send Command with address {payload[i].Item1} and value {payload[i].Item2}");
                 await SendCommand(payload[i].Item1, payload[i].Item2, false);
             }
 
