@@ -9,7 +9,7 @@ namespace ScannerWeb.Services
 {
     public class ArduinoService : IArduinoService
     {
-        public string COM { get; set; } = "/dev/ttyUSB0";
+        public string COM { get; set; } = string.Empty;
         private List<IObserver<string>> Observers = new List<IObserver<string>>();
         public SerialPort? _sPort;
         private ILogger<ArduinoService> logger;
