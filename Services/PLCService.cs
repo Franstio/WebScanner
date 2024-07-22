@@ -97,6 +97,7 @@ namespace ScannerWeb.Services
         }
         public async Task TriggerManual(PLCIndicatorObserver.PLCIndicatorEnum indicator, bool state)
         {
+            logger.LogCritical($"Indicator: {indicator}, state: {(state ? 1 : 0)} ");
                 await SendCommand((ushort)indicator, state ? (ushort)0 : (ushort)1,isRunning);
         }
         public async Task StartReadingInput(CancellationToken token, ushort count)
