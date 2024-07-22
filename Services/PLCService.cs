@@ -116,8 +116,6 @@ namespace ScannerWeb.Services
                         ushort[]? data = await ReadCommand(0, 10);
                         if (data is null)
                             continue;
-
-                        logger.LogInformation(String.Join(",", data));
                         for (int i = 0; i < Observers.Count; i++)
                             if (Observers[i] != null)
                                 Observers[i].OnNext(data);
@@ -291,7 +289,6 @@ namespace ScannerWeb.Services
             PayloadCommand.Clear();
             if (payload.Length < 1 || payload[0] == null)
             {
-                logger.LogError("Payload empty");
                 return;
             }
             for (int i=0;i<payload.Length;i++)
