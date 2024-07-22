@@ -192,7 +192,7 @@ namespace ScannerWeb.Services
             }
             if (master is null)
             {
-                logger.LogDebug("Master Modbus is null");
+                logger.LogError("Master Modbus is null");
                 return;
             }
             try
