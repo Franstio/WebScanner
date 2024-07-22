@@ -201,10 +201,14 @@ namespace ScannerWeb.Services
             {
                 await master.WriteSingleRegisterAsync(SlaveId, address, value);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (ex.Message.Contains("Unexpected"))
-                    return ;
+                {
+                    await Task.Delay(100);
+                    await SendCommand(address, value, suspend);
+                    return;
+                }
                 logger.LogDebug("Err Writing To PLc: " + ex.Message);
                 logger.LogError("ERR read plc: " + ex.Message);
                 await Reconnect();
