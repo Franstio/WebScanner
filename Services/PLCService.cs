@@ -198,7 +198,16 @@ namespace ScannerWeb.Services
             {
                 logger.LogDebug("Err Writing To PLc: " + ex.Message);
                 logger.LogError("ERR read plc: " + ex.Message);
-                logger.LogError(ex.Message + "...Reconnecting.");
+                await Reconnect();
+                await Task.Delay(100);
+                await SendCommand(address, value);
+            }
+        }
+        public async Task Reconnect()
+        {
+            try
+            {
+                logger.LogError("...Reconnecting.");
                 if (_port is not null)
                 {
                     _port.Close();
@@ -206,8 +215,10 @@ namespace ScannerWeb.Services
                 }
                 master = BuildModbusMaster();
                 _port!.Open();
-                await Task.Delay(100);
-                await SendCommand(address, value);
+            }
+            catch
+            {
+                await Reconnect();
             }
         }
         public async Task<ushort[]?> ReadCommand(ushort address, ushort numberOfPoint)
@@ -224,14 +235,8 @@ namespace ScannerWeb.Services
             catch(Exception ex)
             {
                 logger.LogError("ERR read plc: " + ex.Message);
-                logger.LogError(ex.Message + "...Reconnecting.");
-                if (_port is not null)
-                {
-                    _port.Close();
-                    _port.Dispose();
-                }
-                master = BuildModbusMaster();
-                _port!.Open();
+                logger.LogError( "...Reconnecting.");
+                await Reconnect();
                 await Task.Delay(100);
                 return await ReadCommand(address,numberOfPoint);
             }
