@@ -202,6 +202,8 @@ namespace ScannerWeb.Services
             }
             catch(Exception ex)
             {
+                if (ex.Message.Contains("Unexpected"))
+                    return ;
                 logger.LogDebug("Err Writing To PLc: " + ex.Message);
                 logger.LogError("ERR read plc: " + ex.Message);
                 await Reconnect();
