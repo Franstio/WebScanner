@@ -192,6 +192,8 @@ namespace ScannerWeb.Services
             }
             if (master is null)
             {
+                await Reconnect();
+                await SendCommand(address, value, suspend);
                 logger.LogError("Master Modbus is null");
                 return;
             }
