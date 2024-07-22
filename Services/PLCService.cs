@@ -224,6 +224,7 @@ namespace ScannerWeb.Services
         }
         public async Task<ushort[]?> ReadCommand(ushort address, ushort numberOfPoint)
         {
+            ushort[]? data = null;
             if (master is null)
             {
                 logger.LogDebug("Master Modbus is null");
@@ -231,10 +232,13 @@ namespace ScannerWeb.Services
             }
             try
             {
-                return await master.ReadHoldingRegistersAsync(SlaveId, address, numberOfPoint);
+                data  = await master.ReadHoldingRegistersAsync(SlaveId, address, numberOfPoint);
+                return data;
             }
             catch(Exception ex)
             {
+                if (ex.Message.Contains("Unexpected"))
+                    return data;
                 logger.LogError("ERR read plc: " + ex.Message);
                 logger.LogError( "...Reconnecting.");
                 await Reconnect();
