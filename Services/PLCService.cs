@@ -284,7 +284,7 @@ namespace ScannerWeb.Services
         public async Task RunCommand()
         {
             Tuple<ushort, ushort>[] payload = new Tuple<ushort,ushort>[PayloadCommand.Count];
-            payload.CopyTo(payload,0);
+            PayloadCommand.CopyTo(payload,0);
             PayloadCommand.Clear();
             if (payload.Length < 1 || payload[0] == null)
             {
