@@ -203,7 +203,7 @@ namespace ScannerWeb.Services
                 await SendCommand(address, value);
             }
         }
-        public async Task Reconnect()
+        public  Task Reconnect()
         {
             try
             {
@@ -218,8 +218,9 @@ namespace ScannerWeb.Services
             }
             catch
             {
-                await Reconnect();
+                logger.LogError("Fail Reconnecting");
             }
+            return Task.CompletedTask;
         }
         public async Task<ushort[]?> ReadCommand(ushort address, ushort numberOfPoint)
         {
