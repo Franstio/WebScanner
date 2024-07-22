@@ -216,9 +216,9 @@ namespace ScannerWeb.Services
                 master = BuildModbusMaster();
                 _port!.Open();
             }
-            catch
+            catch (Exception ex)
             {
-                logger.LogError("Fail Reconnecting");
+                logger.LogError("Fail Reconnecting, "+ex.Message);
             }
             return Task.CompletedTask;
         }
