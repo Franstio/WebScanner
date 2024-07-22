@@ -24,6 +24,7 @@ namespace ScannerWeb.Services
         private bool isRunning = false;
         private ILogger<PLCService> logger;
         private CancellationTokenSource cts = new CancellationTokenSource();
+        private List<Tuple<ushort, ushort>> PayloadCommand = [];
         public PLCService(IOptions<ConfigModel> opt,ILogger<PLCService> _logger)
         {
             logger = _logger;
@@ -44,8 +45,8 @@ namespace ScannerWeb.Services
                 port.DataBits = 8;
                 port.Parity = Parity.None;
                 port.StopBits = StopBits.One;
-                port.ReadTimeout = 3000;
-                port.WriteTimeout = 3000;
+                port.ReadTimeout = 1000;
+                port.WriteTimeout = 1000;
                 return port;
             }
             catch(Exception ex)
@@ -96,7 +97,7 @@ namespace ScannerWeb.Services
         }
         public async Task TriggerManual(PLCIndicatorObserver.PLCIndicatorEnum indicator, bool state)
         {
-            await SendCommand((ushort)indicator, state ? (ushort)0 : (ushort)1);
+                await SendCommand((ushort)indicator, state ? (ushort)0 : (ushort)1,isRunning);
         }
         public async Task StartReadingInput(CancellationToken token, ushort count)
         {
@@ -110,6 +111,7 @@ namespace ScannerWeb.Services
                 {
                     try
                     {
+                        await RunCommand();
                         ushort[]? data = await ReadCommand(0, 10);
                         if (data is null)
                             continue;
@@ -134,7 +136,7 @@ namespace ScannerWeb.Services
                     finally
                     {
 
-                        await Task.Delay(1000);
+                        await Task.Delay(10);
                     }
                 }
             }
@@ -182,9 +184,13 @@ namespace ScannerWeb.Services
         {
             throw new NotImplementedException("Please use SendCommand(ushort addres, ushort value) for PLC Service");
         }
-        public async Task SendCommand(ushort address, ushort value)
+        public async Task SendCommand(ushort address, ushort value,bool suspend=false)
         {
-
+            if (suspend)
+            {
+                PayloadCommand.Add(new Tuple<ushort, ushort>(address, value));
+                return;
+            }
             if (master is null)
             {
                 logger.LogDebug("Master Modbus is null");
@@ -199,7 +205,7 @@ namespace ScannerWeb.Services
                 logger.LogDebug("Err Writing To PLc: " + ex.Message);
                 logger.LogError("ERR read plc: " + ex.Message);
                 await Reconnect();
-                await SendCommand(address, value);
+                await SendCommand(address, value,suspend);
             }
         }
         public  async Task Reconnect()
@@ -253,7 +259,7 @@ namespace ScannerWeb.Services
 
         public async Task ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum indicator, bool state)
         {
-            await SendCommand((ushort)indicator, state ? (ushort)1 : (ushort)0);
+            await SendCommand((ushort)indicator, state ? (ushort)1 : (ushort)0,isRunning);
         }
         public void FinishObserver<T>()
         {
@@ -273,6 +279,23 @@ namespace ScannerWeb.Services
         {
             for (int i = 0; i < LockUpdateObserver.Count; i++)
                 LockUpdateObserver[i].OnNext(update);
+        }
+
+        public async Task RunCommand()
+        {
+            Tuple<ushort, ushort>[] payload = new Tuple<ushort,ushort>[PayloadCommand.Count];
+            payload.CopyTo(payload,0);
+            PayloadCommand.Clear();
+            if (payload.Length < 1 || payload[0] == null)
+            {
+                logger.LogError("Payload empty");
+                return;
+            }
+            for (int i=0;i<payload.Length;i++)
+            {
+                await SendCommand(payload[i].Item1, payload[i].Item2, false);
+            }
+
         }
     }
 }

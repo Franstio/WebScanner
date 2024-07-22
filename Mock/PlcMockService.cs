@@ -110,7 +110,7 @@ namespace ScannerWeb.Mock
         {
             throw new NotImplementedException("Please use SendCommand(ushort addres, ushort value) for PLC Service");
         }
-        public  Task SendCommand(ushort address, ushort value)
+        public  Task SendCommand(ushort address, ushort value,bool suspend=false)
         {
 
             try
@@ -176,6 +176,11 @@ namespace ScannerWeb.Mock
         {
             for (int i = 0; i < LockUpdateObserver.Count; i++)
                 LockUpdateObserver[i].OnNext(update);
+        }
+
+        public Task RunCommand()
+        {
+            throw new NotImplementedException();
         }
     }
 }
