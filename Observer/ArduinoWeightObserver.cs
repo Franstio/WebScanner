@@ -27,6 +27,9 @@ namespace ScannerWeb.Observer
                 Trace.WriteLine(message);
                 return;
             }
+            string[] ar = message.Split('.');
+            if (message.Contains(".") && ar.Length != 2)
+                return;
             decimal _weight = 0;
             bool isValid = decimal.TryParse(message.Replace(" ", "").Trim(),out _weight);
 //            Trace.WriteLine("isvalid: " + isValid);
@@ -35,6 +38,8 @@ namespace ScannerWeb.Observer
                 Trace.WriteLine(message);
                 return;
             }
+            if (_weight < -2 )
+                return;
             if (WeightReceivedEvent is not null)
                 await WeightReceivedEvent(_weight);
         }
