@@ -28,7 +28,7 @@ namespace ScannerWeb.Observer
                 return;
             }
             string[] ar = message.Split('.');
-            if (message.Contains(".") && ar.Length != 2)
+            if (message.Contains(".") && ar.Length != 2 || string.IsNullOrEmpty(ar[0]))
                 return;
             decimal _weight = 0;
             bool isValid = decimal.TryParse(message.Replace(" ", "").Trim(),out _weight);
