@@ -99,10 +99,9 @@ namespace ScannerWeb.Services
                 SerialPort? sPort = (SerialPort)sender;
                 if (sPort is null)
                     return;
-                byte[] buffer = new byte[128];
+                byte[] buffer = new byte[1024];
                 sPort.Read(buffer, 0, buffer.Length);
                 string res = Encoding.UTF8.GetString(buffer );
-                logger.LogCritical(res);
                 if (Observers is not null && Observers.Count > 0)
                 {
                     for (int i=0;i<Observers.Count;i++)
