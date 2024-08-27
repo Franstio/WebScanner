@@ -14,6 +14,7 @@ namespace ScannerWeb.Services
         private List<IObserver<string>> Observers = new List<IObserver<string>>();
         public SerialPort? _sPort;
         private ILogger<ArduinoService> logger;
+        private int counter = 0;
         public ArduinoService(IOptions<ConfigModel> opt,ILogger<ArduinoService> logger)
         {
             this.logger = logger;
@@ -99,8 +100,15 @@ namespace ScannerWeb.Services
                 SerialPort? sPort = (SerialPort)sender;
                 if (sPort is null)
                     return;
+                if (counter >0)
+                {
+                    counter = (counter +1) % 100;
+                    return;
+                }
                 byte[] buffer = new byte[128];
                 sPort.Read(buffer, 0, buffer.Length);
+                sPort.BaseStream.Flush();
+                counter = counter + 1;
                 string res = Encoding.ASCII.GetString(buffer );
                 logger.LogCritical(res);
                 if (Observers is not null && Observers.Count > 0)
@@ -109,7 +117,6 @@ namespace ScannerWeb.Services
                         Observers[i].OnNext(res);
                     //CleanObservers();
                 }
-                sPort.BaseStream.Flush();
             }
             catch(Exception ex)
             {
