@@ -102,7 +102,8 @@ namespace ScannerWeb.Services
                     return;
                 if (counter >0)
                 {
-                    counter = (counter +1) % 100;
+                    counter = (counter +1) % 30;
+                    sPort.BaseStream.Flush();
                     return;
                 }
                 byte[] buffer = new byte[128];
