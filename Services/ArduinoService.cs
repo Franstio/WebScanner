@@ -36,7 +36,7 @@ namespace ScannerWeb.Services
                 sPort.DtrEnable = true;
                 sPort.DataReceived += SPort_DataReceived;
                 sPort.ErrorReceived += SPort_ErrorReceived;
-                sPort.ReadTimeout = 500;
+                sPort.ReadTimeout = 1000;
                 return sPort;
             }
             catch (Exception ex)

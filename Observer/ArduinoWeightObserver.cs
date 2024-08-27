@@ -38,7 +38,7 @@ namespace ScannerWeb.Observer
                 Trace.WriteLine(message);
                 return;
             }
-            if (_weight < -2 )
+            if (_weight < -200 )
                 return;
             if (WeightReceivedEvent is not null)
                 await WeightReceivedEvent(_weight);
