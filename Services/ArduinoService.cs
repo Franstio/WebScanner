@@ -103,7 +103,7 @@ namespace ScannerWeb.Services
                 logger.LogCritical(counter.ToString());
                 if (counter >0)
                 {
-                    counter = (counter +1) % 30;
+                    counter = (counter +1) % 15;
                     sPort.BaseStream.Flush();
                     return;
                 }
@@ -112,6 +112,8 @@ namespace ScannerWeb.Services
                 sPort.BaseStream.Flush();
                 counter = counter + 1;
                 string res = Encoding.UTF8.GetString(buffer );
+                var ar= res.Split("\n");
+                res = ar[res[0]];
                 logger.LogCritical(res);
                 if (Observers is not null && Observers.Count > 0)
                 {
