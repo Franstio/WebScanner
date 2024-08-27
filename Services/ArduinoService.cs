@@ -4,6 +4,7 @@ using ScannerWeb.Models;
 using ScannerWeb.Observer;
 using System.Diagnostics;
 using System.IO.Ports;
+using System.Text;
 
 namespace ScannerWeb.Services
 {
@@ -98,7 +99,9 @@ namespace ScannerWeb.Services
                 SerialPort? sPort = (SerialPort)sender;
                 if (sPort is null)
                     return;
-                string res = sPort.ReadExisting();
+                byte[] buffer = new byte[128];
+                sPort.Read(buffer, 0, buffer.Length);
+                string res = Encoding.UTF8.GetString(buffer );
                 if (Observers is not null && Observers.Count > 0)
                 {
                     for (int i=0;i<Observers.Count;i++)
