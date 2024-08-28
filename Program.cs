@@ -49,7 +49,7 @@ builder.Services.AddSingleton<IPLCService,PLCService>();
 builder.Services.AddSingleton<IMainService,MainService>();
 builder.Services.Configure<ConfigModel>(builder.Configuration.GetSection(nameof(ConfigModel)));
 builder.Services.AddHttpContextAccessor();
-
+builder.WebHost.UseStaticWebAssets();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
