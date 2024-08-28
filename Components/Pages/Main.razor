@@ -157,6 +157,7 @@
     private async Task WeightUpdate(decimal _weight)
     {
         Weight = _weight;
+        logger.LogCritical("FE DEBUG WEIGHT: " + Weight);
         string color = "#0094CE";
         decimal p = Items[0].Percentage = (Weight /configModel!.MaxWeight) * 100;
         bool nowRed = p > 90;
