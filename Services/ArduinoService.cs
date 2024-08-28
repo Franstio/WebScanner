@@ -38,7 +38,7 @@ namespace ScannerWeb.Services
                 sPort.DtrEnable = true;
                 sPort.DataReceived += SPort_DataReceived;
                 sPort.ErrorReceived += SPort_ErrorReceived;
-                sPort.ReadTimeout = 1000;
+                sPort.ReadTimeout = 500;
                 return sPort;
             }
             catch (Exception ex)
@@ -102,11 +102,11 @@ namespace ScannerWeb.Services
                     return;
                 if (counter > 0)
                 {
-                    counter = (counter + 1) % 3;
+                    counter = (counter + 1) % 2;
                     return;
                 }
                 counter = counter + 1;
-                byte[] buffer = new byte[128];
+                byte[] buffer = new byte[64];
                 sPort.Read(buffer, 0, buffer.Length);
                 sPort.BaseStream.Flush();
                 string res = Encoding.UTF8.GetString(buffer );
