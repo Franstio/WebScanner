@@ -100,7 +100,7 @@ namespace ScannerWeb.Services
                 SerialPort? sPort = (SerialPort)sender;
                 if (sPort is null)
                     return;
-                logger.LogCritical(counter.ToString());
+                logger.LogCritical("Debug Counter: "+counter.ToString());
                 if (counter >0)
                 {
                     counter = (counter +1) % 15;
@@ -112,7 +112,9 @@ namespace ScannerWeb.Services
                 sPort.BaseStream.Flush();
                 counter = counter + 1;
                 string res = Encoding.UTF8.GetString(buffer );
+                logger.LogCritical(res);
                 var ar= res.Split("\n");
+                logger.LogCritical(string.Join(",",ar));
                 res = ar[res[0]];
                 logger.LogCritical(res);
                 if (Observers is not null && Observers.Count > 0)
