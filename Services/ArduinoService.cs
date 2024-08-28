@@ -101,7 +101,7 @@ namespace ScannerWeb.Services
                 if (sPort is null)
                     return;
                 logger.LogCritical("Debug Counter: "+counter.ToString());
-                if (counter >0)
+                if (counter >1)
                 {
                     counter = (counter +1) % 15;
                     sPort.BaseStream.Flush();
