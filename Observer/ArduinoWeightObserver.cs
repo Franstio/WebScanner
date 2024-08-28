@@ -30,7 +30,7 @@ namespace ScannerWeb.Observer
             string[] lines = message.Split("\n");
             for (int i = 0; i < lines.Length; i++)
             {
-                string line = lines[i];
+                string line = lines[i].Trim().Replace(" ","").Replace("\t","").Replace("\n","");
                 string[] ar = line.Split('.');
                 if (line.Contains(".") && ar.Length != 2 || (string.IsNullOrEmpty(ar[0]) || string.IsNullOrEmpty(ar[ar.Length - 1])))
                     continue;
