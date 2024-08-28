@@ -27,21 +27,25 @@ namespace ScannerWeb.Observer
                 Trace.WriteLine(message);
                 return;
             }
-            string[] ar = message.Split('.');
-            if (message.Contains(".") && ar.Length != 2 || (string.IsNullOrEmpty(ar[0]) || string.IsNullOrEmpty(ar[ar.Length-1])))
-                return;
-            decimal _weight = 0;
-            bool isValid = decimal.TryParse(message.Replace(" ", "").Trim(),out _weight);
-//            Trace.WriteLine("isvalid: " + isValid);
-            if (!isValid)
+            string[] lines = message.Split("\n");
+            for (int i = 0; i < lines.Length; i++)
             {
-                Trace.WriteLine(message);
-                return;
+                string line = lines[i];
+                string[] ar = line.Split('.');
+                if (line.Contains(".") && ar.Length != 2 || (string.IsNullOrEmpty(ar[0]) || string.IsNullOrEmpty(ar[ar.Length - 1])))
+                    continue;
+                decimal _weight = 0;
+                bool isValid = decimal.TryParse(message.Replace(" ", "").Trim(), out _weight);
+                //            Trace.WriteLine("isvalid: " + isValid);
+                if (!isValid)
+                {
+                    continue;
+                }
+                if (_weight < -200)
+                    continue;
+                if (WeightReceivedEvent is not null)
+                    await WeightReceivedEvent(_weight);
             }
-            if (_weight < -200 )
-                return;
-            if (WeightReceivedEvent is not null)
-                await WeightReceivedEvent(_weight);
         }
         public delegate Task WeightReceived(decimal weight);
         public void Unsubscribe()
