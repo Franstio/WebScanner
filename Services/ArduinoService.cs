@@ -100,7 +100,12 @@ namespace ScannerWeb.Services
                 SerialPort? sPort = (SerialPort)sender;
                 if (sPort is null)
                     return;
-
+                if (counter > 0)
+                {
+                    counter = (counter + 1) % 3;
+                    return;
+                }
+                counter = counter + 1;
                 byte[] buffer = new byte[128];
                 sPort.Read(buffer, 0, buffer.Length);
                 sPort.BaseStream.Flush();
