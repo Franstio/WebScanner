@@ -107,7 +107,7 @@ namespace ScannerWeb.Services
                     sPort.BaseStream.Flush();
                     return;
                 }
-                byte[] buffer = new byte[256];
+                byte[] buffer = new byte[128];
                 sPort.Read(buffer, 0, buffer.Length);
                 sPort.BaseStream.Flush();
                 counter = counter + 1;
@@ -115,7 +115,7 @@ namespace ScannerWeb.Services
                 logger.LogCritical(res);
                 var ar= res.Split("\n");
                 logger.LogCritical(string.Join(",",ar));
-                res = ar[res[0]];
+                res = ar[res[res.Length-1]];
                 logger.LogCritical(res);
                 if (Observers is not null && Observers.Count > 0)
                 {
