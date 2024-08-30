@@ -137,7 +137,7 @@ namespace ScannerWeb.Services
                     obs.Add(Observers[i]);
             Observers = obs;
         }
-        public async  Task Connect(CancellationToken token)
+        public   Task Connect(CancellationToken token)
         {
             do
             {
@@ -149,11 +149,11 @@ namespace ScannerWeb.Services
                     if (_sPort.IsOpen)
                     {
                         logger.LogDebug("Port Opened, Closing..");
-                        return;//_sPort.Close();
+                        return Task.CompletedTask;//_sPort.Close();
                     }
                     _sPort.Open();
                     byte[] buffer = Encoding.ASCII.GetBytes("1");
-                    await _sPort.WriteAsync(buffer,0,buffer.Length);
+                    _sPort.Write(buffer,0,buffer.Length);
                     logger.LogDebug("OPEN ARDUINO");
                 }
                 catch(Exception ex)
@@ -162,6 +162,7 @@ namespace ScannerWeb.Services
                 }
             }            
             while (_sPort is not null && !token.IsCancellationRequested && !_sPort.IsOpen) ;
+            return Task.CompletedTask;
         }
 
         public Task Disconnect()
