@@ -107,13 +107,15 @@ namespace ScannerWeb.Services
                     return;
                 }
                 counter = counter + 1;
-                byte[] buffer = new byte[64];
-                sPort.BaseStream.Read(buffer, 0, buffer.Length);
+                byte[] buffer = new byte[128];
+                sPort.Read(buffer, 0, buffer.Length);
                 string res = Encoding.ASCII.GetString(buffer );
                 var ar = res.Split('\n');
+                decimal _o = 0;
                 foreach (var a in ar)
                 {
-                    logger.LogCritical("DATA: "+a.Trim().Replace(" ", "").Replace("\t", "").Replace("\n", ""));
+                    if (decimal.TryParse(a,out _o))
+                        logger.LogCritical("DATA: "+a);
                 }
                 if (Observers is not null && Observers.Count > 0)
                 {
@@ -151,7 +153,7 @@ namespace ScannerWeb.Services
                     }
                     _sPort.Open();
                     byte[] buffer = Encoding.ASCII.GetBytes("1");
-                    await _sPort.BaseStream.WriteAsync(buffer,0,buffer.Length);
+                    await _sPort.WriteAsync(buffer,0,buffer.Length);
                     logger.LogDebug("OPEN ARDUINO");
                 }
                 catch(Exception ex)
