@@ -108,7 +108,7 @@ namespace ScannerWeb.Services
                 }
                 counter = counter + 1;
                 byte[] buffer = new byte[64];
-                sPort.Read(buffer, 0, buffer.Length);
+                sPort.BaseStream.Read(buffer, 0, buffer.Length);
                 sPort.BaseStream.Flush();
                 string res = Encoding.UTF8.GetString(buffer );
                 logger.LogCritical(res);
@@ -132,7 +132,7 @@ namespace ScannerWeb.Services
                     obs.Add(Observers[i]);
             Observers = obs;
         }
-        public  Task Connect(CancellationToken token)
+        public async  Task Connect(CancellationToken token)
         {
             do
             {
@@ -144,10 +144,11 @@ namespace ScannerWeb.Services
                     if (_sPort.IsOpen)
                     {
                         logger.LogDebug("Port Opened, Closing..");
-                        return Task.CompletedTask;//_sPort.Close();
+                        return;//_sPort.Close();
                     }
                     _sPort.Open();
-
+                    byte[] buffer = Encoding.ASCII.GetBytes("1");
+                    await _sPort.BaseStream.WriteAsync(buffer,0,buffer.Length);
                     logger.LogDebug("OPEN ARDUINO");
                 }
                 catch(Exception ex)
@@ -156,7 +157,6 @@ namespace ScannerWeb.Services
                 }
             }            
             while (_sPort is not null && !token.IsCancellationRequested && !_sPort.IsOpen) ;
-            return Task.CompletedTask;
         }
 
         public Task Disconnect()
