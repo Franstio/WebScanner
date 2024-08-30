@@ -109,7 +109,6 @@ namespace ScannerWeb.Services
                 counter = counter + 1;
                 byte[] buffer = new byte[64];
                 sPort.BaseStream.Read(buffer, 0, buffer.Length);
-                sPort.BaseStream.Flush();
                 string res = Encoding.ASCII.GetString(buffer );
                 logger.LogCritical(res);
                 if (Observers is not null && Observers.Count > 0)
