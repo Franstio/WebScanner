@@ -35,7 +35,7 @@ namespace ScannerWeb.Services
                 sPort.DataBits = 8;
                 sPort.Handshake = Handshake.None;
                 sPort.RtsEnable = false;
-                sPort.DtrEnable = false;
+                sPort.DtrEnable = true;
                 sPort.DataReceived += SPort_DataReceived;
                 sPort.ErrorReceived += SPort_ErrorReceived;
                 sPort.ReadTimeout = 700;
@@ -110,7 +110,11 @@ namespace ScannerWeb.Services
                 byte[] buffer = new byte[64];
                 sPort.BaseStream.Read(buffer, 0, buffer.Length);
                 string res = Encoding.ASCII.GetString(buffer );
-                logger.LogCritical(res);
+                var ar = res.Split('\n');
+                foreach (var a in ar)
+                {
+                    logger.LogCritical("DATA: "+a.Trim().Replace(" ", "").Replace("\t", "").Replace("\n", ""));
+                }
                 if (Observers is not null && Observers.Count > 0)
                 {
                     for (int i=0;i<Observers.Count;i++)
