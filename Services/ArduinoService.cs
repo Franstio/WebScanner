@@ -29,7 +29,7 @@ namespace ScannerWeb.Services
                     return null;
                 logger.LogDebug("LOAD ARDUINO");
                 SerialPort sPort = new SerialPort(COM);
-                sPort.BaudRate = 4800;
+                sPort.BaudRate = 57600;
                 sPort.Parity = Parity.None;
                 sPort.StopBits = StopBits.One;
                 sPort.DataBits = 8;
