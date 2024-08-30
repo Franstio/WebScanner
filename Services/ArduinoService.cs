@@ -114,14 +114,16 @@ namespace ScannerWeb.Services
                 decimal _o = 0;
                 foreach (var a in ar)
                 {
-                    if (decimal.TryParse(a,out _o))
-                        logger.LogCritical("DATA: "+a);
-                }
-                if (Observers is not null && Observers.Count > 0)
-                {
-                    for (int i=0;i<Observers.Count;i++)
-                        Observers[i].OnNext(res);
-                    //CleanObservers();
+                    if (decimal.TryParse(a, out _o))
+                        logger.LogCritical("DATA: " + a);
+                    logger.LogCritical("Observer Count: "+Observers.Count);
+                    if (Observers is not null && Observers.Count > 0)
+                    {
+                        for (int i = 0; i < Observers.Count; i++)
+                            Observers[i].OnNext(_o.ToString("0.00"));
+                        //CleanObservers();
+                    }
+                    return;
                 }
             }
             catch(Exception ex)

@@ -24,28 +24,19 @@ namespace ScannerWeb.Observer
 //            Trace.WriteLine(message);
             if (message.Contains("?") || string.IsNullOrEmpty(message) )
             {
-                Trace.WriteLine(message);
                 return;
             }
-            string[] lines = message.Split("\n");
-            for (int i = 0; i < lines.Length; i++)
+            decimal _weight ;
+            bool isValid = decimal.TryParse(message.Replace(" ", "").Trim(), out _weight);
+            //            Trace.WriteLine("isvalid: " + isValid);
+            if (!isValid)
             {
-                string line = lines[i].Trim().Replace(" ","").Replace("\t","").Replace("\n","");
-                string[] ar = line.Split('.');
-                if (line.Contains(".") && ar.Length != 2 || (string.IsNullOrEmpty(ar[0]) || string.IsNullOrEmpty(ar[ar.Length - 1])))
-                    continue;
-                decimal _weight = 0;
-                bool isValid = decimal.TryParse(message.Replace(" ", "").Trim(), out _weight);
-                //            Trace.WriteLine("isvalid: " + isValid);
-                if (!isValid)
-                {
-                    continue;
-                }
-                if (_weight < -200)
-                    continue;
-                if (WeightReceivedEvent is not null)
-                    await WeightReceivedEvent(_weight);
+                return;
             }
+            if (_weight < -200)
+                return;
+            if (WeightReceivedEvent is not null)
+                await WeightReceivedEvent(_weight);
         }
         public delegate Task WeightReceived(decimal weight);
         public void Unsubscribe()
