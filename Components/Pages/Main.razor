@@ -121,9 +121,9 @@
         isPreRender = !httpContext.HttpContext!.Response.HasStarted;
         if (!isPreRender)
         {
-            Task.Run(async delegate { await PLCService.Connect(cts.Token);
+            Task.Factory.StartNew(async delegate { await PLCService.Connect(cts.Token);
                 await PLCService.ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum.YELLOW_LAMP, true);
-            }).ConfigureAwait(false);
+            },CancellationToken.None,TaskCreationOptions.RunContinuationsAsynchronously,TaskScheduler.Default).ConfigureAwait(false);
 
             cts = new CancellationTokenSource();
             arduinoObserver = new ArduinoWeightObserver();
@@ -131,7 +131,7 @@
             ServerName = Environment.MachineName;
             arduinoObserver.WeightReceivedEvent += WeightUpdate;
             arduinoObserver.Subscribe(arduinoService);
-            Task.Run(async delegate { await arduinoService.Connect(cts.Token);},cts.Token).ConfigureAwait(false);
+            Task.Factory.StartNew(async delegate { await arduinoService.Connect(cts.Token);}, CancellationToken.None,TaskCreationOptions.RunContinuationsAsynchronously,TaskScheduler.Default).ConfigureAwait(false);
             instructionObserver.UpdateInstructionEvent += InstructionUpdate;
             instructionObserver.Subscribe(mainService);
             mainService.StartMonitor();
