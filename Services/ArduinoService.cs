@@ -114,6 +114,7 @@ namespace ScannerWeb.Services
                 decimal _o = 0;
                 foreach (var a in ar)
                 {
+                    logger.LogCritical("DATA RAW: " + a);
                     if (decimal.TryParse(a, out _o))
                         logger.LogCritical("DATA: " + a);
                     logger.LogCritical("Observer Count: "+Observers.Count);
