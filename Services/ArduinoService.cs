@@ -113,15 +113,14 @@ namespace ScannerWeb.Services
                     return;
                 }
                 counter = counter + 1;
-                byte[] buffer = new byte[200];
-                sPort.Read(buffer, 0, buffer.Length);
-                string res = Encoding.ASCII.GetString(buffer);
+//                byte[] buffer = new byte[200];
+  //              sPort.Read(buffer, 0, buffer.Length);
+                string res = sPort.ReadExisting();
                 var ar = res.Split('\n');
                 decimal _o = 0;
                 logger.LogCritical("DATA RAW1:" + res);
                 foreach (var a in ar)
                 {
-                    logger.LogCritical("DATA RAW: " + a);
                     if (decimal.TryParse(a, out _o))
                         logger.LogCritical("DATA: " + a);
                     logger.LogCritical("Observer Count: " + Observers.Count);
