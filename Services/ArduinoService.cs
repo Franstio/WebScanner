@@ -4,6 +4,7 @@ using ScannerWeb.Models;
 using ScannerWeb.Observer;
 using System.Diagnostics;
 using System.IO.Ports;
+using System.Reflection;
 using System.Text;
 
 namespace ScannerWeb.Services
@@ -15,6 +16,7 @@ namespace ScannerWeb.Services
         public SerialPort? _sPort;
         private ILogger<ArduinoService> logger;
         private int counter = 0;
+        private Task TaskRun = Task.CompletedTask;
         public ArduinoService(IOptions<ConfigModel> opt,ILogger<ArduinoService> logger)
         {
             this.logger = logger;
@@ -36,8 +38,8 @@ namespace ScannerWeb.Services
                 sPort.Handshake = Handshake.None;
                 sPort.RtsEnable = false;
                 sPort.DtrEnable = true;
-                sPort.DataReceived += SPort_DataReceived;
-                sPort.ErrorReceived += SPort_ErrorReceived;
+//                sPort.DataReceived += SPort_DataReceived;
+//                sPort.ErrorReceived += SPort_ErrorReceived;
                 sPort.ReadTimeout = 1200;
 
                 return sPort;
@@ -96,9 +98,13 @@ namespace ScannerWeb.Services
         }
         private  void SPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+            ReadData((SerialPort)sender);
+        }
+        private void ReadData(SerialPort portData)
+        {
             try
             {
-                SerialPort? sPort = (SerialPort)sender;
+                SerialPort? sPort = portData;
                 if (sPort is null)
                     return;
                 if (counter > 0)
@@ -109,7 +115,7 @@ namespace ScannerWeb.Services
                 counter = counter + 1;
                 byte[] buffer = new byte[200];
                 sPort.Read(buffer, 0, buffer.Length);
-                string res = Encoding.ASCII.GetString(buffer );
+                string res = Encoding.ASCII.GetString(buffer);
                 var ar = res.Split('\n');
                 decimal _o = 0;
                 foreach (var a in ar)
@@ -117,7 +123,7 @@ namespace ScannerWeb.Services
                     logger.LogCritical("DATA RAW: " + a);
                     if (decimal.TryParse(a, out _o))
                         logger.LogCritical("DATA: " + a);
-                    logger.LogCritical("Observer Count: "+Observers.Count);
+                    logger.LogCritical("Observer Count: " + Observers.Count);
                     if (Observers is not null && Observers.Count > 0)
                     {
                         for (int i = 0; i < Observers.Count; i++)
@@ -127,7 +133,7 @@ namespace ScannerWeb.Services
                     return;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogInformation(ex.Message);
             }
@@ -158,6 +164,14 @@ namespace ScannerWeb.Services
                     byte[] buffer = Encoding.ASCII.GetBytes("\n");
                     _sPort.Write(buffer,0,buffer.Length);
                     logger.LogDebug("OPEN ARDUINO");
+                    TaskRun = Task.Run(async delegate
+                    {
+                        while (true)
+                        {
+                            ReadData(_sPort);
+                            await Task.Delay(100);
+                        }
+                    });
                 }
                 catch(Exception ex)
                 {
