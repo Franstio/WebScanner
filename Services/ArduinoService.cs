@@ -121,8 +121,9 @@ namespace ScannerWeb.Services
                 logger.LogCritical("DATA RAW1:" + res);
                 foreach (var a in ar)
                 {
-                    if (decimal.TryParse(a, out _o))
-                        logger.LogCritical("DATA: " + a);
+                    if (!decimal.TryParse(a, out _o))
+                        return;
+                    logger.LogCritical("DATA: " + a);
                     logger.LogCritical("Observer Count: " + Observers.Count);
                     if (Observers is not null && Observers.Count > 0)
                     {
