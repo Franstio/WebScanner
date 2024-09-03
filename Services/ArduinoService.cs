@@ -118,6 +118,7 @@ namespace ScannerWeb.Services
                 string res = Encoding.ASCII.GetString(buffer);
                 var ar = res.Split('\n');
                 decimal _o = 0;
+                logger.LogCritical("DATA RAW1:" + res);
                 foreach (var a in ar)
                 {
                     logger.LogCritical("DATA RAW: " + a);
