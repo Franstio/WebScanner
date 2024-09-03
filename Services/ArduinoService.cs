@@ -38,7 +38,7 @@ namespace ScannerWeb.Services
                 sPort.DtrEnable = true;
                 sPort.DataReceived += SPort_DataReceived;
                 sPort.ErrorReceived += SPort_ErrorReceived;
-                sPort.ReadTimeout = 700;
+                sPort.ReadTimeout = 1200;
 
                 return sPort;
             }
@@ -107,7 +107,7 @@ namespace ScannerWeb.Services
                     return;
                 }
                 counter = counter + 1;
-                byte[] buffer = new byte[128];
+                byte[] buffer = new byte[200];
                 sPort.Read(buffer, 0, buffer.Length);
                 string res = Encoding.ASCII.GetString(buffer );
                 var ar = res.Split('\n');
@@ -155,7 +155,7 @@ namespace ScannerWeb.Services
                         return Task.CompletedTask;//_sPort.Close();
                     }
                     _sPort.Open();
-                    byte[] buffer = Encoding.ASCII.GetBytes("1");
+                    byte[] buffer = Encoding.ASCII.GetBytes("\n");
                     _sPort.Write(buffer,0,buffer.Length);
                     logger.LogDebug("OPEN ARDUINO");
                 }
