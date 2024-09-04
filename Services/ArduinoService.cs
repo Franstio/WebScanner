@@ -16,7 +16,10 @@ namespace ScannerWeb.Services
         public SerialPort? _sPort;
         private ILogger<ArduinoService> logger;
         private int counter = 0;
+        private int totalFreeze = 0;
         private Task TaskRun = Task.CompletedTask;
+        private CancellationToken listenerToken = CancellationToken.None;
+        private CancellationTokenSource taskCancel = new CancellationTokenSource();
         public ArduinoService(IOptions<ConfigModel> opt,ILogger<ArduinoService> logger)
         {
             this.logger = logger;
@@ -96,7 +99,7 @@ namespace ScannerWeb.Services
             }
             return Task.CompletedTask;
         }
-        private  void SPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        private async void SPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             ReadData((SerialPort)sender);
         }
@@ -122,7 +125,19 @@ namespace ScannerWeb.Services
                 foreach (var a in ar)
                 {
                     if (!decimal.TryParse(a, out _o))
-                        return;
+                    {
+                        totalFreeze = totalFreeze + 1;
+                        if (totalFreeze > 3)
+                        {
+                            logger.LogCritical("Reopening Sequences Initiated..");
+                            _sPort?.Close();
+                            _sPort = BuildSerialPort();
+                            taskCancel.Cancel();
+                            totalFreeze = 0;
+                            return;
+                        }
+                    }
+                    totalFreeze = 0;
                     logger.LogCritical("DATA: " + a);
                     logger.LogCritical("Observer Count: " + Observers.Count);
                     if (Observers is not null && Observers.Count > 0)
@@ -167,11 +182,13 @@ namespace ScannerWeb.Services
                     logger.LogDebug("OPEN ARDUINO");
                     TaskRun = Task.Run(async delegate
                     {
-                        while (true)
+                        while (!taskCancel.IsCancellationRequested)
                         {
                             ReadData(_sPort);
                             await Task.Delay(100);
                         }
+                        taskCancel = new CancellationTokenSource();
+                        await Connect(listenerToken);
                     });
                 }
                 catch(Exception ex)
