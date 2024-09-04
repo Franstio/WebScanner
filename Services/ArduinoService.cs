@@ -136,6 +136,8 @@ namespace ScannerWeb.Services
                             totalFreeze = 0;
                             return;
                         }
+                        logger.LogCritical("Freeze Count: " + totalFreeze);
+                        return;
                     }
                     totalFreeze = 0;
                     logger.LogCritical("DATA: " + a);
