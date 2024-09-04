@@ -101,9 +101,9 @@ namespace ScannerWeb.Services
         }
         private async void SPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            ReadData((SerialPort)sender);
+            await ReadData((SerialPort)sender);
         }
-        private void ReadData(SerialPort portData)
+        private async Task ReadData(SerialPort portData)
         {
             try
             {
@@ -126,17 +126,7 @@ namespace ScannerWeb.Services
                 {
                     if (!decimal.TryParse(a, out _o))
                     {
-                        totalFreeze = totalFreeze + 1;
-                        if (totalFreeze > 3)
-                        {
-                            logger.LogCritical("Reopening Sequences Initiated..");
-                            _sPort?.Close();
-                            _sPort = BuildSerialPort();
-                            taskCancel.Cancel();
-                            totalFreeze = 0;
-                            return;
-                        }
-                        logger.LogCritical("Freeze Count: " + totalFreeze);
+                        await _sPort!.BaseStream.FlushAsync();
                         return;
                     }
                     totalFreeze = 0;
