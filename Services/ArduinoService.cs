@@ -122,23 +122,23 @@ namespace ScannerWeb.Services
                 var ar = res.Split('\n');
                 decimal _o = 0;
                 logger.LogCritical("DATA RAW1:" + res);
+                List<decimal> _data = new List<decimal>();
                 foreach (var a in ar)
                 {
                     if (!decimal.TryParse(a, out _o))
                     {
                         await _sPort!.BaseStream.FlushAsync();
-                        return;
+                        continue;
                     }
-                    totalFreeze = 0;
-                    logger.LogCritical("DATA: " + a);
-                    logger.LogCritical("Observer Count: " + Observers.Count);
-                    if (Observers is not null && Observers.Count > 0)
-                    {
-                        for (int i = 0; i < Observers.Count; i++)
-                            Observers[i].OnNext(_o.ToString("0.00"));
-                        //CleanObservers();
-                    }
-                    return;
+                    _data.Add(_o);
+                }
+                logger.LogCritical("DATA: " + a);
+                logger.LogCritical("Observer Count: " + Observers?.Count);
+                if (Observers is not null && Observers.Count > 0 && _data.Count > 0)
+                {
+                    for (int i = 0; i < Observers.Count; i++)
+                        Observers[i].OnNext(_data.Max().ToString("0.00"));
+                    //CleanObservers();
                 }
             }
             catch (Exception ex)
