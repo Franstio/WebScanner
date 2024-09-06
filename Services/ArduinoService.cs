@@ -110,12 +110,6 @@ namespace ScannerWeb.Services
                 SerialPort? sPort = portData;
                 if (sPort is null)
                     return;
-                if (counter > 0)
-                {
-                    counter = (counter + 1) % 2;
-                    return;
-                }
-                counter = counter + 1;
 //                byte[] buffer = new byte[200];
   //              sPort.Read(buffer, 0, buffer.Length);
                 string res = sPort.ReadExisting();
@@ -178,7 +172,7 @@ namespace ScannerWeb.Services
                         while (!taskCancel.IsCancellationRequested)
                         {
                             await ReadData(_sPort);
-                            await Task.Delay(500);
+                            await Task.Delay(2000);
                         }
                         taskCancel = new CancellationTokenSource();
                         await Connect(listenerToken);
