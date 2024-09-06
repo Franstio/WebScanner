@@ -116,29 +116,23 @@ namespace ScannerWeb.Services
                     return;
                 }
                 counter = counter + 1;
-//                byte[] buffer = new byte[200];
-  //              sPort.Read(buffer, 0, buffer.Length);
-                string res = sPort.ReadExisting();
-                var ar = res.Split('\n');
+                //                byte[] buffer = new byte[200];
+                //              sPort.Read(buffer, 0, buffer.Length);
+                string res = sPort.ReadLine();
                 decimal _o = 0;
                 logger.LogCritical("DATA RAW1:" + res);
-                List<decimal> _data = new List<decimal>();
-                foreach (var a in ar)
+                if (!decimal.TryParse(res.Trim().Replace("\n", "").Replace("\t", "").Replace("\0", "").Replace(" ", ""), out _o))
                 {
-                    if (!decimal.TryParse(a, out _o))
-                    {
-                        await _sPort!.BaseStream.FlushAsync();
-                        return;
-                    }
-                    logger.LogCritical("DATA: " + _o);
-                    _data.Add(_o);
+                    await _sPort!.BaseStream.FlushAsync();
+                    return;
                 }
-                logger.LogCritical("DATA MIN: " + _data.Min());
+                logger.LogCritical("DATA: " + _o);
+                logger.LogCritical("DATA MIN: " + _o);
                 logger.LogCritical("Observer Count: " + Observers?.Count);
-                if (Observers is not null && Observers.Count > 0 && _data.Count > 0)
+                if (Observers is not null && Observers.Count > 0 && _o > 0)
                 {
                     for (int i = 0; i < Observers.Count; i++)
-                        Observers[i].OnNext(_data.Min().ToString("0.00"));
+                        Observers[i].OnNext(_o.ToString("0.00"));
                     //CleanObservers();
                 }
             }
@@ -177,8 +171,8 @@ namespace ScannerWeb.Services
                     {
                         while (!taskCancel.IsCancellationRequested)
                         {
-                            ReadData(_sPort);
-                            await Task.Delay(100);
+                            await ReadData(_sPort);
+                            await Task.Delay(500);
                         }
                         taskCancel = new CancellationTokenSource();
                         await Connect(listenerToken);
