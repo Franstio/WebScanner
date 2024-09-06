@@ -130,14 +130,15 @@ namespace ScannerWeb.Services
                         await _sPort!.BaseStream.FlushAsync();
                         continue;
                     }
+                    logger.LogCritical("DATA: " + _o);
                     _data.Add(_o);
                 }
-                logger.LogCritical("DATA: " + _data.Max());
+                logger.LogCritical("DATA MIN: " + _data.Min());
                 logger.LogCritical("Observer Count: " + Observers?.Count);
                 if (Observers is not null && Observers.Count > 0 && _data.Count > 0)
                 {
                     for (int i = 0; i < Observers.Count; i++)
-                        Observers[i].OnNext(_data.Max().ToString("0.00"));
+                        Observers[i].OnNext(_data.Min().ToString("0.00"));
                     //CleanObservers();
                 }
             }
