@@ -128,7 +128,7 @@ namespace ScannerWeb.Services
                     if (!decimal.TryParse(a, out _o))
                     {
                         await _sPort!.BaseStream.FlushAsync();
-                        continue;
+                        return;
                     }
                     logger.LogCritical("DATA: " + _o);
                     _data.Add(_o);
