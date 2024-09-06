@@ -132,7 +132,7 @@ namespace ScannerWeb.Services
                     }
                     _data.Add(_o);
                 }
-                logger.LogCritical("DATA: " + a);
+                logger.LogCritical("DATA: " + _data.Max());
                 logger.LogCritical("Observer Count: " + Observers?.Count);
                 if (Observers is not null && Observers.Count > 0 && _data.Count > 0)
                 {
