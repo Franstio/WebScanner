@@ -39,8 +39,8 @@ namespace ScannerWeb.Services
                 sPort.StopBits = StopBits.One;
                 sPort.DataBits = 8;
                 sPort.Handshake = Handshake.None;
-                sPort.RtsEnable = false;
-                sPort.DtrEnable = true;
+                sPort.RtsEnable = true;
+//                sPort.DtrEnable = true;
 //                sPort.DataReceived += SPort_DataReceived;
 //                sPort.ErrorReceived += SPort_ErrorReceived;
                 sPort.ReadTimeout = 1200;
