@@ -20,6 +20,7 @@ namespace ScannerWeb.Services
         SerialPort? _port;
         IModbusMaster? master;
         public string COM { get; set; } = "/dev/ttyUSB1";
+        public string USB_ID { get; set; } = string.Empty;
         public byte SlaveId { get; set; } = 1;
         private bool isRunning = false;
         private ILogger<PLCService> logger;
@@ -28,9 +29,9 @@ namespace ScannerWeb.Services
         public PLCService(IOptions<ConfigModel> opt,ILogger<PLCService> _logger)
         {
             logger = _logger;
-            master = BuildModbusMaster();
             COM = opt.Value.PlcCOM;
-
+            USB_ID = opt.Value.Plc_USBID;
+            master = BuildModbusMaster();
         }
         private SerialPort? BuildSerialPort()
         {
@@ -99,6 +100,22 @@ namespace ScannerWeb.Services
         {
             logger.LogCritical($"Indicator: {indicator}, state: {(state ? 1 : 0)} ");
                 await SendCommand((ushort)indicator, state ? (ushort)0 : (ushort)1,isRunning);
+        }
+
+        private async Task ResetUSB()
+        {
+            try
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo() { FileName = "/bin/bash", Arguments = $"-c \"sudo usbreset {USB_ID}", RedirectStandardOutput = true };
+                Process proc = new Process() { StartInfo = startInfo, };
+                proc.Start();
+                string result = await proc.StandardOutput.ReadToEndAsync();
+                logger.LogCritical($"Reset USB PLC : {result}");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error Reset USB: {ex.Message} {ex.InnerException?.Message}\n{ex.StackTrace}");
+            }
         }
         public async Task StartReadingInput(CancellationToken token, ushort count)
         {
@@ -215,6 +232,7 @@ namespace ScannerWeb.Services
         {
             try
             {
+                await ResetUSB();
                 logger.LogError("...Reconnecting.");
                 if (_port is not null)
                 {

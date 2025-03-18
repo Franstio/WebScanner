@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using ApexCharts;
+using Microsoft.Extensions.Options;
 using ScannerWeb.Interfaces;
 using ScannerWeb.Models;
 using ScannerWeb.Observer;
@@ -12,6 +13,7 @@ namespace ScannerWeb.Services
     public class ArduinoService : IArduinoService
     {
         public string COM { get; set; } = "/dev/ttyUSB0";
+        public string USB_ID { get; set; } = "";
         private List<IObserver<string>> Observers = new List<IObserver<string>>();
         public SerialPort? _sPort;
         private ILogger<ArduinoService> logger;
@@ -20,11 +22,13 @@ namespace ScannerWeb.Services
         private Task TaskRun = Task.CompletedTask;
         private CancellationToken listenerToken = CancellationToken.None;
         private CancellationTokenSource taskCancel = new CancellationTokenSource();
+        private bool isRunning = false;
         public ArduinoService(IOptions<ConfigModel> opt,ILogger<ArduinoService> logger)
         {
             this.logger = logger;
-            _sPort = BuildSerialPort();
             COM = opt.Value.ArduinoCOM;
+            USB_ID = opt.Value.Arduino_USBID;
+            _sPort = BuildSerialPort();
         }
         private SerialPort? BuildSerialPort()
         {
@@ -54,8 +58,9 @@ namespace ScannerWeb.Services
             }
         }
 
-        private void SPort_ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
+        private async void SPort_ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
         {
+            await ResetUSB();
             Func<SerialErrorReceivedEventArgs,Exception?,string > f = (SerialErrorReceivedEventArgs evet,Exception? exce) =>"Error Arduino Serial Reading";
             logger.Log(LogLevel.Error, new EventId(), e, null, f);
             try
@@ -101,6 +106,7 @@ namespace ScannerWeb.Services
         }
         private async void SPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+            isRunning = true;
             await ReadData((SerialPort)sender);
         }
         private async Task ReadData(SerialPort portData)
@@ -139,6 +145,8 @@ namespace ScannerWeb.Services
             catch (Exception ex)
             {
                 logger.LogInformation(ex.Message);
+                await Disconnect();
+                _sPort = BuildSerialPort();
             }
         }
         private void CleanObservers()
@@ -186,23 +194,37 @@ namespace ScannerWeb.Services
             while (_sPort is not null && !token.IsCancellationRequested && !_sPort.IsOpen) ;
             return Task.CompletedTask;
         }
-
-        public Task Disconnect()
+        private async Task ResetUSB()
         {
+            try
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo() { FileName = "/bin/bash", Arguments = $"-c \"sudo usbreset {USB_ID}", RedirectStandardOutput = true };
+                Process proc = new Process() { StartInfo = startInfo, };
+                proc.Start();
+                string result = await proc.StandardOutput.ReadToEndAsync();
+                logger.LogCritical($"Reset USB Arduino: {result}");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error Reset USB: {ex.Message} {ex.InnerException?.Message}\n{ex.StackTrace}");
+            }
+        }
+        public async Task Disconnect()
+        {
+            await ResetUSB();
             if (_sPort is null)
-                return Task.CompletedTask;
+                return;
             if (Observers is not null && Observers.Count > 0)
             {
                 for (int i=0;i<Observers.Count;i++)
                     Observers[i].OnCompleted();
             }
             _sPort.Close();
-            return Task.CompletedTask;
         }
 
-        public void Dispose()
+        public async void Dispose()
         {
-            Disconnect();
+            await Disconnect();
         }
 
 

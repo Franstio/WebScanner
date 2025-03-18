@@ -10,5 +10,7 @@
         public string ApiPrefix { get; set; } = string.Empty;
         public string ArduinoCOM { get; set; } = string.Empty;
         public string PlcCOM { get; set; } = string.Empty;
+        public string Arduino_USBID { get;set; } = string.Empty;
+        public string Plc_USBID { get; set; } = string.Empty;
     }
 }
