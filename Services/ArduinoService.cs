@@ -188,6 +188,7 @@ namespace ScannerWeb.Services
                 }
                 catch(Exception ex)
                 {
+                    Disconnect().RunSynchronously();
                     logger.LogError(ex.Message);
                 }
             }            
