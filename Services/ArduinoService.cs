@@ -189,6 +189,7 @@ namespace ScannerWeb.Services
                 catch(Exception ex)
                 {
                     Disconnect().RunSynchronously();
+                    _sPort = BuildSerialPort();
                     logger.LogError(ex.Message);
                 }
             }            
