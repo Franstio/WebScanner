@@ -144,7 +144,7 @@ namespace ScannerWeb.Services
             }
             catch (Exception ex)
             {
-                logger.LogInformation(ex.Message);
+                logger.LogInformation(ex.Message + " | " + ex.StackTrace);
                 await Disconnect();
                 _sPort = BuildSerialPort();
             }
@@ -190,7 +190,7 @@ namespace ScannerWeb.Services
                 {
                     Disconnect().RunSynchronously();
                     _sPort = BuildSerialPort();
-                    logger.LogError(ex.Message);
+                    logger.LogError(ex.Message + " | " + ex.StackTrace);
                 }
             }            
             while (_sPort is not null && !token.IsCancellationRequested && !_sPort.IsOpen) ;
@@ -222,6 +222,7 @@ namespace ScannerWeb.Services
             }
             _sPort.Close();
             await ResetUSB();
+            
         }
 
         public async void Dispose()
