@@ -211,7 +211,6 @@ namespace ScannerWeb.Services
         }
         public async Task Disconnect()
         {
-            await ResetUSB();
             if (_sPort is null)
                 return;
             if (Observers is not null && Observers.Count > 0)
@@ -220,6 +219,7 @@ namespace ScannerWeb.Services
                     Observers[i].OnCompleted();
             }
             _sPort.Close();
+            await ResetUSB();
         }
 
         public async void Dispose()
