@@ -43,8 +43,8 @@ namespace ScannerWeb.Services
                 sPort.StopBits = StopBits.One;
                 sPort.DataBits = 8;
                 sPort.Handshake = Handshake.None;
-                sPort.RtsEnable = true;
-                sPort.DtrEnable = true;
+                sPort.RtsEnable = false;
+                sPort.DtrEnable = false;
 //                sPort.DataReceived += SPort_DataReceived;
 //                sPort.ErrorReceived += SPort_ErrorReceived;
                 sPort.ReadTimeout = 1200;
@@ -230,7 +230,6 @@ namespace ScannerWeb.Services
             }
             _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
-            await Task.Delay(500);
             await ResetUSB();
             
         }
