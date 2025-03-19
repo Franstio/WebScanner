@@ -171,7 +171,7 @@ namespace ScannerWeb.Services
                         return Task.CompletedTask;//_sPort.Close();
                     }
                     _sPort.Open();
-                    byte[] buffer = Encoding.ASCII.GetBytes("\n");
+                    byte[] buffer = Encoding.UTF8.GetBytes("\n");
                     _sPort.Write(buffer,0,buffer.Length);
                     logger.LogDebug("OPEN ARDUINO");
                     TaskRun = Task.Run(async delegate
@@ -193,9 +193,9 @@ namespace ScannerWeb.Services
                                     continue;
                                 }
                                 _sPort.Open();
-                                byte[] buffer = Encoding.ASCII.GetBytes("READ\n");
+                                byte[] buffer = Encoding.UTF8.GetBytes("READ\n");
                                 _sPort.Write(buffer, 0, buffer.Length);
-                                buffer = Encoding.ASCII.GetBytes("CMD,1234\n");
+                                buffer = Encoding.UTF8.GetBytes("CMD,1234\n");
                                 _sPort.Write(buffer, 0, buffer.Length);
                                 logger.LogCritical("OPEN ARDUINO");
                             }
