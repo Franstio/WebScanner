@@ -197,7 +197,7 @@ namespace ScannerWeb.Services
                                 _sPort.Write(buffer, 0, buffer.Length);
                                 buffer = Encoding.ASCII.GetBytes("CMD,1234\n");
                                 _sPort.Write(buffer, 0, buffer.Length);
-                                logger.LogDebug("OPEN ARDUINO");
+                                logger.LogCritical("OPEN ARDUINO");
                             }
                             await ReadData(_sPort);
                             await Task.Delay(2000);
