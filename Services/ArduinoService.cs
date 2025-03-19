@@ -179,6 +179,9 @@ namespace ScannerWeb.Services
                     {
                         while (!taskCancel.IsCancellationRequested)
                         {
+
+                            if (!_sPort.IsOpen)
+                                _sPort.Open();
                             await ReadData(_sPort);
                             await Task.Delay(2000);
                         }
