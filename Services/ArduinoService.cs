@@ -183,7 +183,7 @@ namespace ScannerWeb.Services
                             if (!_sPort.IsOpen)
                             {
                                 _sPort.Open();
-                                byte[] buffer = Encoding.ASCII.GetBytes("\n");
+                                byte[] buffer = Encoding.ASCII.GetBytes("READ\n");
                                 _sPort.Write(buffer, 0, buffer.Length);
                                 logger.LogDebug("OPEN ARDUINO");
                             }
