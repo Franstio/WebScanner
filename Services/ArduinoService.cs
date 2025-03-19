@@ -229,6 +229,8 @@ namespace ScannerWeb.Services
                     Observers[i].OnCompleted();
             }
             _sPort.Close();
+            logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
+            await Task.Delay(500);
             await ResetUSB();
             
         }
