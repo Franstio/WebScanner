@@ -146,7 +146,6 @@ namespace ScannerWeb.Services
             {
                 logger.LogInformation(ex.Message + " | " + ex.StackTrace);
                 await Disconnect();
-                _sPort = BuildSerialPort();
             }
         }
         private void CleanObservers()
@@ -179,9 +178,20 @@ namespace ScannerWeb.Services
                     {
                         while (!taskCancel.IsCancellationRequested)
                         {
-
+                            if (_sPort is null)
+                            {
+                                logger.LogInformation("Port object is nul, retrying...");
+                                continue;
+                            }
                             if (!_sPort.IsOpen)
                             {
+
+                                _sPort = BuildSerialPort() ;
+                                if (_sPort is null)
+                                {
+                                    logger.LogInformation("Port object is nul, retrying...");
+                                    continue;
+                                }
                                 _sPort.Open();
                                 byte[] buffer = Encoding.ASCII.GetBytes("READ\n");
                                 _sPort.Write(buffer, 0, buffer.Length);
