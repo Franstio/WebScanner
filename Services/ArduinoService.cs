@@ -242,7 +242,9 @@ namespace ScannerWeb.Services
             }
             _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
+            await Task.Delay(1000);
             await ResetUSB();
+            await Task.Delay(1000);
             
         }
 
