@@ -248,6 +248,7 @@ namespace ScannerWeb.Services
 
             byte[] buffer = Encoding.UTF8.GetBytes("RESET");
             _sPort.Write(buffer, 0, buffer.Length);
+            await _sPort.BaseStream.FlushAsync();
             _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
             _sPort.Dispose();
