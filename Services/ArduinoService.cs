@@ -43,8 +43,8 @@ namespace ScannerWeb.Services
                 sPort.Parity = Parity.None;
                 sPort.StopBits = StopBits.One;
                 sPort.DataBits = 8;
-                sPort.Handshake = Handshake.RequestToSendXOnXOff;
-                sPort.RtsEnable = true;
+                sPort.Handshake = Handshake.XOnXOff;
+                sPort.RtsEnable = false;
                 sPort.DtrEnable = true;
 //                sPort.DataReceived += SPort_DataReceived;
 //                sPort.ErrorReceived += SPort_ErrorReceived;
