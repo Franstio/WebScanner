@@ -249,8 +249,8 @@ namespace ScannerWeb.Services
             byte[] buffer = Encoding.UTF8.GetBytes("RESET");
             _sPort.Write(buffer, 0, buffer.Length);
             _sPort.Close();
-            _sPort.Dispose();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
+            _sPort.Dispose();
             await ResetUSB();
             await Task.Delay(500);
             
