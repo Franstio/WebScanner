@@ -232,13 +232,13 @@ namespace ScannerWeb.Services
         {
             try
             {
-                await ResetUSB();
                 logger.LogError("...Reconnecting.");
                 if (_port is not null)
                 {
                     _port.Close();
                     _port.Dispose();
                 }
+                await ResetUSB();
                 master = BuildModbusMaster();
                 _port!.Open();
             }
