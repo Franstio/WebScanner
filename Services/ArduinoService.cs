@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using ScannerWeb.Interfaces;
 using ScannerWeb.Models;
 using ScannerWeb.Observer;
+using System;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Reflection;
@@ -240,6 +241,9 @@ namespace ScannerWeb.Services
                 for (int i=0;i<Observers.Count;i++)
                     Observers[i].OnCompleted();
             }
+
+            byte[] buffer = Encoding.UTF8.GetBytes("RESET");
+            _sPort.Write(buffer, 0, buffer.Length);
             _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
             await Task.Delay(1000);
