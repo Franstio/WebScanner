@@ -8,30 +8,30 @@
 @inject IPLCService plcService
 @inject IHttpContextAccessor httpContext;
 <div class="container mx-auto p-3">
-    <div class="flex gap-3 w-full flex-col"
-        <h3 class="text-primary text-center">
+    <div class="flex w-full flex-col gap-3">
+        <h3 class="text-center text-primary">
             MANUAL
         </h3>
-        <div class="rounded mb-2 shadow bg-white p-3">
+        <div class="mb-2 rounded bg-white p-3 shadow">
             <ScannerWeb.Components.Shared.StatusComponent ShowLock="false"/>
         </div>
         <div class="grid grid-cols-2 gap-2">
-            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.TOP_SENSOR)">TOP SENSOR</button>
+            <button class="w-full bg-cyan-600 p-3 text-center text-white shadow hover:bg-cyan-300" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.TOP_SENSOR)">TOP SENSOR</button>
 
-            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.BOTTOM_SENSOR)">BOTTOM SENSOR</button>
-            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.TOP_LOCK)">TOP DOOR</button>
+            <button class="w-full bg-cyan-600 p-3 text-center text-white shadow hover:bg-cyan-300" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.BOTTOM_SENSOR)">BOTTOM SENSOR</button>
+            <button class="w-full bg-cyan-600 p-3 text-center text-white shadow hover:bg-cyan-300" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.TOP_LOCK)">TOP DOOR</button>
 
-            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.BOTTOM_LOCK)">BOTTOM DOOR</button>
+            <button class="w-full bg-cyan-600 p-3 text-center text-white shadow hover:bg-cyan-300" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.BOTTOM_LOCK)">BOTTOM DOOR</button>
 
-            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.YELLOW_LAMP)">YELLOW LAMP</button>
+            <button class="w-full bg-cyan-600 p-3 text-center text-white shadow hover:bg-cyan-300" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.YELLOW_LAMP)">YELLOW LAMP</button>
 
-            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.GREEN_LAMP)">GREEN LAMP</button>
+            <button class="w-full bg-cyan-600 p-3 text-center text-white shadow hover:bg-cyan-300" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.GREEN_LAMP)">GREEN LAMP</button>
 
-            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.RED_LAMP)">RED LAMP</button>
+            <button class="w-full bg-cyan-600 p-3 text-center text-white shadow hover:bg-cyan-300" @onclick="async(_)=>await TriggerSwitch(PLCIndicatorObserver.PLCIndicatorEnum.RED_LAMP)">RED LAMP</button>
 
-            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 text-white text-center">ARD RESET</button>
+            <button class="w-full bg-cyan-600 p-3 text-center text-white shadow hover:bg-cyan-300">ARD RESET</button>
 
-            <button class="p-3 shadow w-full bg-cyan-600 hover:bg-cyan-300 col-span-2 text-white text-center">SYSTEM REBOOT</button>
+            <button class="col-span-2 w-full bg-cyan-600 p-3 text-center text-white shadow hover:bg-cyan-300">SYSTEM REBOOT</button>
         </div>
     </div>
 </div>

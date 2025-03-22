@@ -80,30 +80,30 @@ namespace ScannerWeb.Services
             if (COM == string.Empty)
                 return Task.CompletedTask;
             return Task.CompletedTask;
-            while (!token.IsCancellationRequested)
-            {
-                try
-                {
-                    if (_sPort is null)
-                    {
-                        logger.LogDebug("LISTENER PORT IS NULL");
-                        continue;
-                    }
-                    string res = _sPort.ReadLine();
-                    logger.LogInformation("ARDUINO OUTPUT: "+res);
-                    if (Observers is not null && Observers.Count > 0)
-                    {
-                        for (int i = 0; i < Observers.Count; i++)
-                            Observers[i].OnNext(res);
-                        //CleanObservers();
-                    }
-                }
-                catch(Exception ex)
-                {
-                    logger.LogInformation("ARDUINO LISTENER: "+ex.Message);
-                }
-            }
-            return Task.CompletedTask;
+            //while (!token.IsCancellationRequested)
+            //{
+            //    try
+            //    {
+            //        if (_sPort is null)
+            //        {
+            //            logger.LogDebug("LISTENER PORT IS NULL");
+            //            continue;
+            //        }
+            //        string res = _sPort.ReadLine();
+            //        logger.LogInformation("ARDUINO OUTPUT: "+res);
+            //        if (Observers is not null && Observers.Count > 0)
+            //        {
+            //            for (int i = 0; i < Observers.Count; i++)
+            //                Observers[i].OnNext(res);
+            //            //CleanObservers();
+            //        }
+            //    }
+            //    catch(Exception ex)
+            //    {
+            //        logger.LogInformation("ARDUINO LISTENER: "+ex.Message);
+            //    }
+            //}
+            //return Task.CompletedTask;
         }
         private async void SPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
@@ -146,7 +146,7 @@ namespace ScannerWeb.Services
             catch (Exception ex)
             {
                 logger.LogInformation(ex.Message + " | " + ex.StackTrace);
-                await Disconnect();
+                await CloseConnection();
             }
         }
         private void CleanObservers()
@@ -157,69 +157,62 @@ namespace ScannerWeb.Services
                     obs.Add(Observers[i]);
             Observers = obs;
         }
-        public   Task Connect(CancellationToken token)
+        public async Task Connect(CancellationToken token)
         {
-            do
+            try
             {
-                try
+                if (_sPort is null)
+                    _sPort = BuildSerialPort()!;
+                if (_sPort.IsOpen)
                 {
-                    if (_sPort is null)
-                        continue;
-
-                    if (_sPort.IsOpen)
+                    logger.LogDebug("Port Opened, Closing..");
+                    await CloseConnection();
+                } 
+                _sPort.Open();
+                byte[] buffer = Encoding.UTF8.GetBytes("\n");
+                _sPort.Write(buffer, 0, buffer.Length);
+                logger.LogDebug("OPEN ARDUINO");
+                TaskRun = Task.Run(async delegate
+                {
+                    while (!token.IsCancellationRequested)
                     {
-                        logger.LogDebug("Port Opened, Closing..");
-                        return Task.CompletedTask;//_sPort.Close();
-                    }
-                    _sPort.Open();
-                    byte[] buffer = Encoding.UTF8.GetBytes("\n");
-                    _sPort.Write(buffer,0,buffer.Length);
-                    logger.LogDebug("OPEN ARDUINO");
-                    TaskRun = Task.Run(async delegate
-                    {
-                        while (!taskCancel.IsCancellationRequested)
+                        if (_sPort is null)
                         {
+                            logger.LogInformation("Port object is nul, retrying...");
+                            continue;
+                        }
+                        if (!_sPort.IsOpen)
+                        {
+
+                            _sPort = BuildSerialPort();
                             if (_sPort is null)
                             {
-                                logger.LogInformation("Port object is nul, retrying...");
+                                logger.LogInformation("Port object is null, retrying...");
                                 continue;
                             }
-                            if (!_sPort.IsOpen)
-                            {
-
-                                _sPort = BuildSerialPort() ;
-                                if (_sPort is null)
-                                {
-                                    logger.LogInformation("Port object is nul, retrying...");
-                                    continue;
-                                }
-                                _sPort.Open();
-                                byte[] buffer = Encoding.UTF8.GetBytes("READ\n");
-                                _sPort.Write(buffer, 0, buffer.Length);
-                                buffer = Encoding.UTF8.GetBytes("CMD,1234\n");
-                                string res = _sPort.ReadExisting();
-                                logger.LogCritical($"MSG1: {res}");
-                                _sPort.Write(buffer, 0, buffer.Length);
-                                res = _sPort.ReadExisting();
-                                logger.LogCritical("OPEN ARDUINO");
-                                logger.LogCritical($"MSG2: {res}");
-                            }
-                            await ReadData(_sPort);
-                            await Task.Delay(2000);
+                            _sPort.Open();
+                            byte[] buffer = Encoding.UTF8.GetBytes("READ\n");
+                            _sPort.Write(buffer, 0, buffer.Length);
+                            buffer = Encoding.UTF8.GetBytes("CMD,1234\n");
+                            string res = _sPort.ReadExisting();
+                            logger.LogCritical($"MSG1: {res}");
+                            _sPort.Write(buffer, 0, buffer.Length);
+                            res = _sPort.ReadExisting();
+                            logger.LogCritical("OPEN ARDUINO");
+                            logger.LogCritical($"MSG2: {res}");
                         }
-                        taskCancel = new CancellationTokenSource();
-                        await Connect(listenerToken);
-                    });
-                }
-                catch(Exception ex)
-                {
-                    Disconnect().RunSynchronously();
-                    _sPort = BuildSerialPort();
-                    logger.LogError(ex.Message + " | " + ex.StackTrace);
-                }
-            }            
-            while (_sPort is not null && !token.IsCancellationRequested && !_sPort.IsOpen) ;
-            return Task.CompletedTask;
+                        await ReadData(_sPort);
+                        await Task.Delay(2000);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                CloseConnection().RunSynchronously();
+                _sPort = BuildSerialPort();
+                logger.LogError(ex.Message + " | " + ex.StackTrace);
+            }
+
         }
         private async Task ResetUSB()
         {
@@ -238,14 +231,17 @@ namespace ScannerWeb.Services
         }
         public async Task Disconnect()
         {
-            if (_sPort is null)
-                return;
             if (Observers is not null && Observers.Count > 0)
             {
                 for (int i=0;i<Observers.Count;i++)
                     Observers[i].OnCompleted();
             }
-
+            await CloseConnection();
+        }
+        public async Task CloseConnection()
+        {
+            if (_sPort is null)
+                return;
             byte[] buffer = Encoding.UTF8.GetBytes("RESET");
             _sPort.Write(buffer, 0, buffer.Length);
             await _sPort.BaseStream.FlushAsync();
@@ -254,9 +250,7 @@ namespace ScannerWeb.Services
             _sPort.Dispose();
             await ResetUSB();
             await Task.Delay(500);
-            
         }
-
         public async void Dispose()
         {
             await Disconnect();
@@ -277,7 +271,11 @@ namespace ScannerWeb.Services
                 Observers.Add(observer);
             return new Unsubscribe<string>(Observers, observer);
         }
-        
 
+        public string GetConnectionStatus()
+        {
+            bool status = _sPort?.IsOpen ?? false;
+            return status ? "Arduino Connected" : "Arduino Disconnected";
+        }
     }
 }
