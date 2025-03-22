@@ -174,35 +174,47 @@ namespace ScannerWeb.Services
                 logger.LogDebug("OPEN ARDUINO");
                 TaskRun = Task.Run(async delegate
                 {
-                    while (!token.IsCancellationRequested)
+                    try
                     {
-                        if (_sPort is null)
+                        while (!token.IsCancellationRequested)
                         {
-                            logger.LogInformation("Port object is nul, retrying...");
-                            continue;
-                        }
-                        if (!_sPort.IsOpen)
-                        {
-
-                            _sPort = BuildSerialPort();
                             if (_sPort is null)
                             {
-                                logger.LogInformation("Port object is null, retrying...");
+                                logger.LogInformation("Port object is nul, retrying...");
                                 continue;
                             }
-                            _sPort.Open();
-                            byte[] buffer = Encoding.UTF8.GetBytes("READ\n");
-                            _sPort.Write(buffer, 0, buffer.Length);
-                            buffer = Encoding.UTF8.GetBytes("CMD,1234\n");
-                            string res = _sPort.ReadExisting();
-                            logger.LogCritical($"MSG1: {res}");
-                            _sPort.Write(buffer, 0, buffer.Length);
-                            res = _sPort.ReadExisting();
-                            logger.LogCritical("OPEN ARDUINO");
-                            logger.LogCritical($"MSG2: {res}");
+                            if (!_sPort.IsOpen)
+                            {
+
+                                _sPort = BuildSerialPort();
+                                if (_sPort is null)
+                                {
+                                    logger.LogInformation("Port object is null, retrying...");
+                                    continue;
+                                }
+                                _sPort.Open();
+                                byte[] buffer = Encoding.UTF8.GetBytes("READ\n");
+                                _sPort.Write(buffer, 0, buffer.Length);
+                                buffer = Encoding.UTF8.GetBytes("CMD,1234\n");
+                                string res = _sPort.ReadExisting();
+                                logger.LogCritical($"MSG1: {res}");
+                                _sPort.Write(buffer, 0, buffer.Length);
+                                res = _sPort.ReadExisting();
+                                logger.LogCritical("OPEN ARDUINO");
+                                logger.LogCritical($"MSG2: {res}");
+                            }
+                            await ReadData(_sPort);
+                            await Task.Delay(2000);
                         }
-                        await ReadData(_sPort);
-                        await Task.Delay(2000);
+                    }
+                    catch (TaskCanceledException _)
+                    {
+                        logger.LogCritical("Task Cancelled");
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogCritical(ex.Message);
+                        await Connect(token);
                     }
                 });
             }
