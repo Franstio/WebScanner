@@ -96,5 +96,15 @@ namespace ScannerWeb.Mock
         {
             await doWork();
         }
+
+        public Task CloseConnection()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetConnectionStatus()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
