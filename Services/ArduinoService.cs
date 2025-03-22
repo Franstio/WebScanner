@@ -176,9 +176,10 @@ namespace ScannerWeb.Services
                 {
                     try
                     {
-                        token.ThrowIfCancellationRequested();
                         while (!token.IsCancellationRequested)
                         {
+
+                            token.ThrowIfCancellationRequested();
                             if (_sPort is null)
                             {
                                 logger.LogInformation("Port object is nul, retrying...");
