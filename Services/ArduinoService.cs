@@ -176,6 +176,7 @@ namespace ScannerWeb.Services
                 {
                     try
                     {
+                        token.ThrowIfCancellationRequested();
                         while (!token.IsCancellationRequested)
                         {
                             if (_sPort is null)
