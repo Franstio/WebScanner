@@ -172,6 +172,7 @@ namespace ScannerWeb.Services
                 byte[] buffer = Encoding.UTF8.GetBytes("\n");
                 _sPort.Write(buffer, 0, buffer.Length);
                 logger.LogDebug("OPEN ARDUINO");
+                listenerToken = token;
                 TaskRun = Task.Run(async delegate
                 {
                     try
@@ -209,7 +210,7 @@ namespace ScannerWeb.Services
                             await Task.Delay(2000);
                         }
                     }
-                    catch (TaskCanceledException _)
+                    catch (OperationCanceledException _)
                     {
                         logger.LogCritical("Task Cancelled");
                     }
