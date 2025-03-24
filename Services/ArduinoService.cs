@@ -44,7 +44,7 @@ namespace ScannerWeb.Services
                 sPort.StopBits = StopBits.One;
                 sPort.DataBits = 8;
                 sPort.Handshake = Handshake.XOnXOff;
-                sPort.RtsEnable = true;
+//                sPort.RtsEnable = true;
                 sPort.DtrEnable = true;
 //                sPort.DataReceived += SPort_DataReceived;
 //                sPort.ErrorReceived += SPort_ErrorReceived;
@@ -257,12 +257,9 @@ namespace ScannerWeb.Services
         {
             if (_sPort is null)
                 return;
-            byte[] buffer = Encoding.UTF8.GetBytes("RESET");
-            _sPort.Write(buffer, 0, buffer.Length);
-            await _sPort.BaseStream.FlushAsync();
-            await Task.Delay(50);
             _sPort.DtrEnable = false;
             await Task.Delay(100);
+            _sPort.DtrEnable = true;
             _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
             _sPort.Dispose();
