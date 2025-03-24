@@ -207,7 +207,7 @@ namespace ScannerWeb.Services
                                 logger.LogCritical($"MSG2: {res}");
                             }
                             await ReadData(_sPort);
-                            await Task.Delay(2000);
+                            await Task.Delay(500);
                         }
                     }
                     catch (OperationCanceledException _)
@@ -260,11 +260,13 @@ namespace ScannerWeb.Services
             byte[] buffer = Encoding.UTF8.GetBytes("RESET");
             _sPort.Write(buffer, 0, buffer.Length);
             await _sPort.BaseStream.FlushAsync();
+            await Task.Delay(50);
+            _sPort.DtrEnable = false;
+            await Task.Delay(100);
             _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
             _sPort.Dispose();
             await ResetUSB();
-            await Task.Delay(500);
         }
         public async void Dispose()
         {
