@@ -258,12 +258,11 @@ namespace ScannerWeb.Services
             leonardoPort.DtrEnable = true;
             logger.LogInformation($"Opening port in 1200 baud rate for reset");
             logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
-            Task.Delay(1000);
+            Task.Delay(3000);
             leonardoPort.DtrEnable = false;
             leonardoPort.Close();
             logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
-            leonardoPort.Dispose();
-            Task.Delay(1000);
+            Task.Delay(3000);
         }
         public async Task CloseConnection()
         {
@@ -271,7 +270,6 @@ namespace ScannerWeb.Services
                 return;
             _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
-            _sPort.Dispose();
             await ResetUSB();
             await Task.Delay(1000);
             LeonardoResetFunc();
