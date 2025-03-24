@@ -255,27 +255,28 @@ namespace ScannerWeb.Services
         }
         void LeonardoResetFunc()
         {
+            logger.LogInformation($"Port in 4800 baud rate status: {(_sPort?.IsOpen ?? false ? "ON" : "OFF")}");
             SerialPort leonardoPort = new SerialPort(COM);
             leonardoPort.BaudRate = 1200;
             leonardoPort.DtrEnable = true;
+
+            logger.LogInformation($"Opening port in 1200 baud rate for reset");
             leonardoPort.Open();
+            logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
             Task.Delay(1000);
             leonardoPort.DtrEnable = false;
             leonardoPort.Close();
+            logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
         }
         public async Task CloseConnection()
         {
             if (_sPort is null)
                 return;
             _sPort.Close();
-            _sPort.DtrEnable = false;
-            await Task.Delay(100);
-            _sPort.DtrEnable = true;
-            _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
             _sPort.Dispose();
             await ResetUSB();
-            await Task.Delay(500);
+            await Task.Delay(1000);
             LeonardoResetFunc();
         }
         public async void Dispose()
