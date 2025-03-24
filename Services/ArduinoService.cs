@@ -265,7 +265,8 @@ namespace ScannerWeb.Services
             leonardoPort.DtrEnable = true;
             logger.LogInformation($"Opening port in 1200 baud rate for reset");
             logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
-            leonardoPort.WriteLine(new string('Z',1024));
+            leonardoPort.Open();
+//            leonardoPort.WriteLine(new string('Z',1024));
             Task.Delay(3000);
             leonardoPort.DtrEnable = false;
             leonardoPort.Close();
