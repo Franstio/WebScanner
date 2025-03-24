@@ -258,7 +258,7 @@ namespace ScannerWeb.Services
             }
             await CloseConnection();
         }
-        async void LeonardoResetFunc()
+        async Task LeonardoResetFunc()
         {
             logger.LogInformation($"Port in 4800 baud rate status: {(_sPort?.IsOpen ?? false ? "ON" : "OFF")}");
             SerialPort leonardoPort = new SerialPort(COM,1200);
