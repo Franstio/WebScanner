@@ -47,7 +47,7 @@ namespace ScannerWeb.Services
                 sPort.RtsEnable = false;
                 sPort.DtrEnable = false;
 //                sPort.DataReceived += SPort_DataReceived;
-//                sPort.ErrorReceived += SPort_ErrorReceived;
+                sPort.ErrorReceived += SPort_ErrorReceived;
                 sPort.ReadTimeout = 1200;
 
                 return sPort;
@@ -67,11 +67,11 @@ namespace ScannerWeb.Services
             try
             {
                 SerialPort _sp = (SerialPort)sender;
-                logger.LogError("Error Reading Serial Arduino: " +_sp.ReadLine());
+                logger.LogError("Error Reading Serial Arduino: " +_sp.ReadExisting());
             }
             catch(Exception ex)
             {
-                logger.LogError(ex.Message);
+                logger.LogInformation(ex.Message);
             }
         }
 
