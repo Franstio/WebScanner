@@ -161,6 +161,9 @@ namespace ScannerWeb.Services
         {
             try
             {
+                if (isRunning)
+                    return;
+                isRunning = true;
                 if (_sPort is null)
                     _sPort = BuildSerialPort()!;
                 if (_sPort.IsOpen)
@@ -181,7 +184,6 @@ namespace ScannerWeb.Services
                     {
                         while (!token.IsCancellationRequested)
                         {
-
                             token.ThrowIfCancellationRequested();
                             if (_sPort is null)
                             {
@@ -210,10 +212,12 @@ namespace ScannerWeb.Services
                     }
                     catch (OperationCanceledException _)
                     {
+                        isRunning = false;
                         logger.LogCritical("Task Cancelled");
                     }
                     catch (Exception ex)
                     {
+                        isRunning = false;
                         logger.LogCritical(ex.Message);
                         await Connect(token);
                     }
@@ -221,6 +225,7 @@ namespace ScannerWeb.Services
             }
             catch (Exception ex)
             {
+                isRunning = false;
                 CloseConnection().RunSynchronously();
                 _sPort = BuildSerialPort();
                 logger.LogError(ex.Message + " | " + ex.StackTrace);
