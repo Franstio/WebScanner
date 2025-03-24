@@ -49,7 +49,7 @@ namespace ScannerWeb.Services
                 sPort.DtrEnable = true;
 //                sPort.DataReceived += SPort_DataReceived;
                 sPort.ErrorReceived += SPort_ErrorReceived;
-                sPort.ReadTimeout = 1200;
+                sPort.ReadTimeout = 5000;
 
                 return sPort;
             }
@@ -279,8 +279,8 @@ namespace ScannerWeb.Services
             _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
 //            await ResetUSB();
-            await Task.Delay(1000);
-         await LeonardoResetFunc();
+            await Task.Delay(100);
+//         await LeonardoResetFunc();
         }
         public async void Dispose()
         {
