@@ -175,8 +175,8 @@ namespace ScannerWeb.Services
                 } 
                 _sPort.Open();
 
-                _sPort.DiscardInBuffer();
-                _sPort.DiscardOutBuffer();
+                //_sPort.DiscardInBuffer();
+                //_sPort.DiscardOutBuffer();
                 logger.LogInformation("Discarding Buffer...");
                 logger.LogDebug("OPEN ARDUINO");
                 listenerToken = token;
@@ -203,8 +203,8 @@ namespace ScannerWeb.Services
                                 }
                                 _sPort.Open();
 
-                                _sPort.DiscardInBuffer();
-                                _sPort.DiscardOutBuffer();
+                                //_sPort.DiscardInBuffer();
+                                //_sPort.DiscardOutBuffer();
 
                                 logger.LogInformation("Discarding Buffer...");
                             }
@@ -265,13 +265,13 @@ namespace ScannerWeb.Services
             leonardoPort.DtrEnable = true;
             logger.LogInformation($"Opening port in 1200 baud rate for reset");
             leonardoPort.Open();
-            await Task.Delay(3000);
+            await Task.Delay(1000);
             logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
             //            leonardoPort.WriteLine(new string('Z',1024));
             leonardoPort.DtrEnable = false;
             leonardoPort.Close();
             logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
-            await Task.Delay(3000);
+            await Task.Delay(1000);
         }
         public async Task CloseConnection()
         {
