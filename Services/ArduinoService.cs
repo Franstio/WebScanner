@@ -129,7 +129,7 @@ namespace ScannerWeb.Services
                 {
                     if (!decimal.TryParse(a, out _o))
                     {
-                        await _sPort!.BaseStream.FlushAsync();
+//                        await _sPort!.BaseStream.FlushAsync();
                         continue;
                     }
                     logger.LogCritical("DATA: " + _o);
@@ -202,7 +202,6 @@ namespace ScannerWeb.Services
                                     continue;
                                 }
                                 _sPort.Open();
-                                await _sPort.BaseStream.FlushAsync();
                                 //_sPort.DiscardInBuffer();
                                 //_sPort.DiscardOutBuffer();
 
@@ -265,7 +264,6 @@ namespace ScannerWeb.Services
             leonardoPort.DtrEnable = true;
             logger.LogInformation($"Opening port in 1200 baud rate for reset");
             leonardoPort.Open();
-            leonardoPort.WriteLine(new string('Z', 1024));
             await Task.Delay(1000);
             logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
             leonardoPort.DtrEnable = false;
