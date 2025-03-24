@@ -282,7 +282,7 @@ namespace ScannerWeb.Services
             _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
 //            await ResetUSB();
-            await Task.Delay(1000);
+            await Task.Delay(20000);
 //         await LeonardoResetFunc();
         }
         public async void Dispose()
