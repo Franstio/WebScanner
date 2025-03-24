@@ -50,8 +50,8 @@ namespace ScannerWeb.Services
 //                sPort.ErrorReceived += SPort_ErrorReceived;
                 sPort.ReadTimeout = 1200;
 
-                _sPort.DiscardInBuffer();
-                _sPort.DiscardOutBuffer();
+                sPort.DiscardInBuffer();
+                sPort.DiscardOutBuffer();
                 return sPort;
             }
             catch (Exception ex)
@@ -249,7 +249,6 @@ namespace ScannerWeb.Services
             logger.LogInformation($"Port in 4800 baud rate status: {(_sPort?.IsOpen ?? false ? "ON" : "OFF")}");
             SerialPort leonardoPort = new SerialPort(COM,1200);
             leonardoPort.DtrEnable = true;
-
             logger.LogInformation($"Opening port in 1200 baud rate for reset");
             logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
             Task.Delay(1000);
