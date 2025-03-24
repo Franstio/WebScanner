@@ -146,7 +146,6 @@ namespace ScannerWeb.Services
             }
             catch (Exception ex)
             {
-                portData.DtrEnable = false;
                 logger.LogInformation(ex.Message + " | " + ex.StackTrace);
                 await CloseConnection();
             }
@@ -277,6 +276,8 @@ namespace ScannerWeb.Services
             if (_sPort is null)
                 return;
             _sPort.DtrEnable = false;
+            await Task.Delay(100);
+            _sPort.DtrEnable = true;
             _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
 //            await ResetUSB();
