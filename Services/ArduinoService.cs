@@ -202,7 +202,7 @@ namespace ScannerWeb.Services
                                     continue;
                                 }
                                 _sPort.Open();
-
+                                await _sPort.BaseStream.FlushAsync();
                                 //_sPort.DiscardInBuffer();
                                 //_sPort.DiscardOutBuffer();
 
@@ -265,9 +265,9 @@ namespace ScannerWeb.Services
             leonardoPort.DtrEnable = true;
             logger.LogInformation($"Opening port in 1200 baud rate for reset");
             leonardoPort.Open();
+            leonardoPort.WriteLine(new string('Z', 1024));
             await Task.Delay(1000);
             logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
-            //            leonardoPort.WriteLine(new string('Z',1024));
             leonardoPort.DtrEnable = false;
             leonardoPort.Close();
             logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
