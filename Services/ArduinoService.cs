@@ -39,11 +39,11 @@ namespace ScannerWeb.Services
                 if (COM == "")
                     return null;
                 logger.LogDebug("LOAD ARDUINO");
-                SerialPort sPort = new SerialPort(COM);
-                sPort.BaudRate = 4800;
-                sPort.Parity = Parity.None;
-                sPort.StopBits = StopBits.One;
-                sPort.DataBits = 8;
+                SerialPort sPort = new SerialPort(COM,4800,Parity.None,8,StopBits.One);
+                //sPort.BaudRate = 4800;
+                //sPort.Parity = Parity.None;
+                //sPort.StopBits = StopBits.One;
+                //sPort.DataBits = 8;
                 sPort.Handshake = Handshake.None;
                 sPort.RtsEnable = false;
                 sPort.DtrEnable = true;
@@ -146,6 +146,7 @@ namespace ScannerWeb.Services
             }
             catch (Exception ex)
             {
+                portData.DtrEnable = false;
                 logger.LogInformation(ex.Message + " | " + ex.StackTrace);
                 await CloseConnection();
             }
