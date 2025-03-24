@@ -24,6 +24,7 @@ namespace ScannerWeb.Services
         private CancellationToken listenerToken = CancellationToken.None;
         private CancellationTokenSource taskCancel = new CancellationTokenSource();
         private bool isRunning = false;
+        public int CountConnect { private set; get; } = 0;
         public ArduinoService(IOptions<ConfigModel> opt,ILogger<ArduinoService> logger)
         {
             this.logger = logger;
@@ -164,6 +165,7 @@ namespace ScannerWeb.Services
                 if (isRunning)
                     return;
                 isRunning = true;
+                CountConnect = CountConnect + 1;
                 if (_sPort is null)
                     _sPort = BuildSerialPort()!;
                 if (_sPort.IsOpen)
@@ -304,7 +306,7 @@ namespace ScannerWeb.Services
         public string GetConnectionStatus()
         {
             bool status = _sPort?.IsOpen ?? false;
-            return status ? "Arduino Connected" : "Arduino Disconnected";
+            return (status ? "Arduino Connected" : "Arduino Disconnected") + " And Count Connect: " + CountConnect;
         }
     }
 }
