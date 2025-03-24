@@ -275,11 +275,12 @@ namespace ScannerWeb.Services
         {
             if (_sPort is null)
                 return;
+            _sPort.DtrEnable = false;
             _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
-            await ResetUSB();
+//            await ResetUSB();
             await Task.Delay(1000);
-            await LeonardoResetFunc();
+         await LeonardoResetFunc();
         }
         public async void Dispose()
         {
