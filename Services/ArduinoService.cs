@@ -253,10 +253,21 @@ namespace ScannerWeb.Services
             }
             await CloseConnection();
         }
+        void LeonardoResetFunc()
+        {
+            SerialPort leonardoPort = new SerialPort(COM);
+            leonardoPort.BaudRate = 1200;
+            leonardoPort.DtrEnable = true;
+            leonardoPort.Open();
+            Task.Delay(1000);
+            leonardoPort.DtrEnable = false;
+            leonardoPort.Close();
+        }
         public async Task CloseConnection()
         {
             if (_sPort is null)
                 return;
+            _sPort.Close();
             _sPort.DtrEnable = false;
             await Task.Delay(100);
             _sPort.DtrEnable = true;
@@ -264,6 +275,8 @@ namespace ScannerWeb.Services
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
             _sPort.Dispose();
             await ResetUSB();
+            await Task.Delay(500);
+            LeonardoResetFunc();
         }
         public async void Dispose()
         {
