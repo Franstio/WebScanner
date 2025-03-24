@@ -43,7 +43,7 @@ namespace ScannerWeb.Services
                 sPort.Parity = Parity.None;
                 sPort.StopBits = StopBits.One;
                 sPort.DataBits = 8;
-                sPort.Handshake = Handshake.XOnXOff;
+                sPort.Handshake = Handshake.None;
                 sPort.RtsEnable = false;
                 sPort.DtrEnable = false;
 //                sPort.DataReceived += SPort_DataReceived;
@@ -119,7 +119,7 @@ namespace ScannerWeb.Services
                     return;
 //                byte[] buffer = new byte[200];
   //              sPort.Read(buffer, 0, buffer.Length);
-                string res = sPort.ReadExisting();
+                string res = sPort.ReadLine();
                 var ar = res.Split('\n');
                 decimal _o = 0;
                 logger.LogCritical("DATA RAW1:" + res);
@@ -256,8 +256,7 @@ namespace ScannerWeb.Services
         void LeonardoResetFunc()
         {
             logger.LogInformation($"Port in 4800 baud rate status: {(_sPort?.IsOpen ?? false ? "ON" : "OFF")}");
-            SerialPort leonardoPort = new SerialPort(COM);
-            leonardoPort.BaudRate = 1200;
+            SerialPort leonardoPort = new SerialPort(COM,1200);
             leonardoPort.DtrEnable = true;
 
             logger.LogInformation($"Opening port in 1200 baud rate for reset");
@@ -267,6 +266,8 @@ namespace ScannerWeb.Services
             leonardoPort.DtrEnable = false;
             leonardoPort.Close();
             logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
+            leonardoPort.Dispose();
+            Task.Delay(1000);
         }
         public async Task CloseConnection()
         {
