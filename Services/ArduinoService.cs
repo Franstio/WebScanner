@@ -264,12 +264,12 @@ namespace ScannerWeb.Services
             leonardoPort.DtrEnable = true;
             logger.LogInformation($"Opening port in 1200 baud rate for reset");
             leonardoPort.Open();
-            await Task.Delay(5000);
+            await Task.Delay(100);
             logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
             leonardoPort.DtrEnable = false;
             leonardoPort.Close();
             logger.LogInformation($"Port in 1200 baud rate status: {(leonardoPort.IsOpen ? "ON" : "OFF")}");
-            await Task.Delay(5000);
+            await Task.Delay(100);
         }
         public async Task CloseConnection()
         {
