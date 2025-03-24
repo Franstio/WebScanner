@@ -50,8 +50,6 @@ namespace ScannerWeb.Services
 //                sPort.ErrorReceived += SPort_ErrorReceived;
                 sPort.ReadTimeout = 1200;
 
-                sPort.DiscardInBuffer();
-                sPort.DiscardOutBuffer();
                 return sPort;
             }
             catch (Exception ex)
@@ -171,6 +169,10 @@ namespace ScannerWeb.Services
                     await CloseConnection();
                 } 
                 _sPort.Open();
+
+                _sPort.DiscardInBuffer();
+                _sPort.DiscardOutBuffer();
+                logger.LogInformation("Discarding Buffer...");
                 logger.LogDebug("OPEN ARDUINO");
                 listenerToken = token;
                 TaskRun = Task.Run(async delegate
@@ -196,6 +198,11 @@ namespace ScannerWeb.Services
                                     continue;
                                 }
                                 _sPort.Open();
+
+                                _sPort.DiscardInBuffer();
+                                _sPort.DiscardOutBuffer();
+
+                                logger.LogInformation("Discarding Buffer...");
                             }
                             await ReadData(_sPort);
                             await Task.Delay(500);
