@@ -119,7 +119,7 @@ namespace ScannerWeb.Services
                     return;
 //                byte[] buffer = new byte[200];
   //              sPort.Read(buffer, 0, buffer.Length);
-                string res = sPort.ReadLine();
+                string res = sPort.ReadExisting();
                 var ar = res.Split('\n');
                 decimal _o = 0;
                 logger.LogCritical("DATA RAW1:" + res);
@@ -275,6 +275,7 @@ namespace ScannerWeb.Services
             await ResetUSB();
             await Task.Delay(1000);
             LeonardoResetFunc();
+            _sPort = BuildSerialPort();
         }
         public async void Dispose()
         {
