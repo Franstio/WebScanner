@@ -281,7 +281,8 @@ namespace ScannerWeb.Services
             await Task.Delay(500);
             _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
-//            await ResetUSB();
+            //            await ResetUSB();
+            logger.LogWarning("Restarting USB Arduino");
             await Task.Delay(20000);
 //         await LeonardoResetFunc();
         }
