@@ -36,9 +36,9 @@ namespace ScannerWeb.Mock
             COM = opt.Value.PlcCOM;
             this.logger = logger;
         }
-        public Task Connect(CancellationToken ctoken)
+        public Task Connect(CancellationTokenSource ctoken)
         {
-            cts = new CancellationTokenSource();
+            cts = ctoken;
             return Task.CompletedTask;
         }
         private void CleanObservers()
