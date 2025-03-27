@@ -34,7 +34,7 @@
         if (connect)
         {
             cts = new CancellationTokenSource();
-            await arduinoService.Connect(cts.Token);
+            await arduinoService.Connect(cts);
         }
         else
         {

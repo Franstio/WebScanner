@@ -21,7 +21,7 @@ namespace ScannerWeb.Services
         private int counter = 0;
         private int totalFreeze = 0;
         private Task TaskRun = Task.CompletedTask;
-        private CancellationToken listenerToken = CancellationToken.None;
+        private CancellationTokenSource listenerToken = new CancellationTokenSource();
         private CancellationTokenSource taskCancel = new CancellationTokenSource();
         private bool isRunning = false;
         public int CountConnect { private set; get; } = 0;
@@ -76,7 +76,7 @@ namespace ScannerWeb.Services
             }
         }
 
-        public  Task StartListening(CancellationToken token)
+        public  Task StartListening(CancellationTokenSource token)
         {
             if (COM == string.Empty)
                 return Task.CompletedTask;
@@ -158,7 +158,7 @@ namespace ScannerWeb.Services
                     obs.Add(Observers[i]);
             Observers = obs;
         }
-        public async Task Connect(CancellationToken token)
+        public async Task Connect(CancellationTokenSource source)
         {
             try
             {
@@ -179,7 +179,8 @@ namespace ScannerWeb.Services
                 //_sPort.DiscardOutBuffer();
                 logger.LogInformation("Discarding Buffer...");
                 logger.LogDebug("OPEN ARDUINO");
-                listenerToken = token;
+                listenerToken = source;
+                var token = source.Token;
                 TaskRun = Task.Run(async delegate
                 {
                     try
@@ -220,7 +221,7 @@ namespace ScannerWeb.Services
                     {
                         isRunning = false;
                         logger.LogCritical(ex.Message);
-                        await Connect(token);
+                        await Connect(source);
                     }
                 });
             }
@@ -255,6 +256,7 @@ namespace ScannerWeb.Services
                 for (int i=0;i<Observers.Count;i++)
                     Observers[i].OnCompleted();
             }
+            listenerToken.Cancel();
             await CloseConnection();
         }
         async Task LeonardoResetFunc()

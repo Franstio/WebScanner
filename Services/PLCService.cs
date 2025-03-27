@@ -71,13 +71,13 @@ namespace ScannerWeb.Services
                 return null;
             }
         }
-        public Task Connect(CancellationToken ctoken)
+        public Task Connect(CancellationTokenSource ctoken)
         {
             do
             {
                 try
                 {
-                    cts = new CancellationTokenSource();
+                    cts = ctoken;
                     if (_port is null)
                         logger.LogDebug("Port is null");
                     else

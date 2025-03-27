@@ -56,7 +56,7 @@
         if (!isRender)
         {
 
-            Task.Run(async delegate { await plcService.Connect(cts.Token); });
+            Task.Run(async delegate { await plcService.Connect(cts); });
         }
 
     }

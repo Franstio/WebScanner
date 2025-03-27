@@ -16,9 +16,9 @@ namespace ScannerWeb.Mock
         {
             this.logger = logger;
         }
-        public Task Connect(CancellationToken token)
+        public Task Connect(CancellationTokenSource token)
         {
-            cToken = token;
+            cToken = token.Token;
             Task.Run(doWork);
             return Task.CompletedTask;
         }
@@ -92,7 +92,7 @@ namespace ScannerWeb.Mock
             return new Unsubscribe<string>(Observers,observer);
         }
 
-        public async Task StartListening(CancellationToken token)
+        public async Task StartListening(CancellationTokenSource token)
         {
             await doWork();
         }

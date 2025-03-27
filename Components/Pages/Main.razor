@@ -17,13 +17,13 @@
 <div class="container mx-auto">
     <div class="grid grid-cols-2 gap-2">
         
-        <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
-            <div class="flex justify-between  w-full mb-5">
+        <div class="rounded-lg bg-white p-4 shadow dark:bg-gray-800 md:p-6">
+            <div class="mb-5 flex w-full justify-between">
                     <div class="w-full">
-                        <h5 class="inline-flex items-center text-primary dark:text-gray-400 leading-none font-bold text-lg mb-2">
+                        <h5 class="mb-2 inline-flex items-center text-lg font-bold leading-none text-primary dark:text-gray-400">
                             Weight
                         </h5>
-                        <p class="text-black font-bold text-center dark:text-white text-2xl leading-none ">@Weight.ToString("0.00") KG</p>
+                        <p class="text-center text-2xl font-bold leading-none text-black dark:text-white">@Weight.ToString("0.00") KG</p>
                     </div>
             </div>
             <ApexChart TItem="GaugeValue" Options="Options" @ref="gauge">
@@ -31,24 +31,24 @@
                                  SeriesType=SeriesType.RadialBar  YValue="y=>y.Percentage" XValue="x=>x.Label" />
             </ApexChart>
         </div>
-        <div class="bg-white rounded-lg shadow p-4 md:p-6">
-            <div class="flex justify-between w-full mb-5">
+        <div class="rounded-lg bg-white p-4 shadow md:p-6">
+            <div class="mb-5 flex w-full justify-between">
                 <div class="w-full">
-                    <h5 class="inline-flex items-center text-primary dark:text-gray-400 leading-none font-bold text-lg mb-2">
+                    <h5 class="mb-2 inline-flex items-center text-lg font-bold leading-none text-primary dark:text-gray-400">
                         Status
                     </h5>
-                    <p class="text-black font-bold text-center dark:text-white text-2xl leading-none ">@ServerName</p>
+                    <p class="text-center text-2xl font-bold leading-none text-black dark:text-white">@ServerName</p>
                 </div>
             </div>
             <ScannerWeb.Components.Shared.StatusComponent ShowLock="true"/>
         </div>
-        <div class="bg-white rounded-lg col-span-2 shadow dark:bg-gray-800 p-4 md:p-6">
-            <div class="flex justify-between  w-full mb-5">
+        <div class="col-span-2 rounded-lg bg-white p-4 shadow dark:bg-gray-800 md:p-6">
+            <div class="mb-5 flex w-full justify-between">
                 <div class="w-full">
-                    <h5 class="inline-flex items-center text-primary dark:text-gray-400 leading-none font-bold text-lg mb-2">
+                    <h5 class="mb-2 inline-flex items-center text-lg font-bold leading-none text-primary dark:text-gray-400">
                         Instruction
                     </h5>
-                    <p class="text-black font-bold text-center dark:text-white text-2xl leading-none ">@Instruction</p>
+                    <p class="text-center text-2xl font-bold leading-none text-black dark:text-white">@Instruction</p>
                 </div>
             </div>
         </div>
@@ -121,7 +121,7 @@
         isPreRender = !httpContext.HttpContext!.Response.HasStarted;
         if (!isPreRender)
         {
-            Task.Factory.StartNew(async delegate { await PLCService.Connect(cts.Token);
+            Task.Factory.StartNew(async delegate { await PLCService.Connect(cts);
                 await PLCService.ToggleManual(PLCIndicatorObserver.PLCIndicatorEnum.YELLOW_LAMP, true);
             },CancellationToken.None,TaskCreationOptions.RunContinuationsAsynchronously,TaskScheduler.Default).ConfigureAwait(false);
 
@@ -131,7 +131,7 @@
             ServerName = Environment.MachineName;
             arduinoObserver.WeightReceivedEvent += WeightUpdate;
             arduinoObserver.Subscribe(arduinoService);
-            Task.Factory.StartNew(async delegate { await arduinoService.Connect(cts.Token);}, CancellationToken.None,TaskCreationOptions.RunContinuationsAsynchronously,TaskScheduler.Default).ConfigureAwait(false);
+            Task.Factory.StartNew(async delegate { await arduinoService.Connect(cts);}, CancellationToken.None,TaskCreationOptions.RunContinuationsAsynchronously,TaskScheduler.Default).ConfigureAwait(false);
             instructionObserver.UpdateInstructionEvent += InstructionUpdate;
             instructionObserver.Subscribe(mainService);
             mainService.StartMonitor();
@@ -209,6 +209,7 @@
     }
     public void CloseDependecies()
     {
+        arduinoService.Disconnect();
         if (cts is not null)
         {
             cts.Cancel();
