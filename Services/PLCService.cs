@@ -73,6 +73,8 @@ namespace ScannerWeb.Services
         }
         public Task Connect(CancellationToken ctoken)
         {
+            if (COM == "")
+                return Task.CompletedTask;
             do
             {
                 try
@@ -202,6 +204,8 @@ namespace ScannerWeb.Services
         }
         public async Task SendCommand(ushort address, ushort value,bool suspend=false)
         {
+            if (COM == "")
+                return;
             if (suspend)
             {
                 PayloadCommand.Add(new Tuple<ushort, ushort>(address, value));
@@ -230,6 +234,10 @@ namespace ScannerWeb.Services
         }
         public  async Task Reconnect()
         {
+            if (COM == "")
+            {
+                return;
+            }
             try
             {
                 logger.LogError("...Reconnecting.");

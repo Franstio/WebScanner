@@ -46,6 +46,7 @@ namespace ScannerWeb.Services
                 sPort.Handshake = Handshake.XOnXOff;
                 sPort.RtsEnable = true;
                 sPort.DtrEnable = true;
+                sPort.NewLine = "\r\n";
 //                sPort.DataReceived += SPort_DataReceived;
 //                sPort.ErrorReceived += SPort_ErrorReceived;
                 sPort.ReadTimeout = 1200;
@@ -119,7 +120,7 @@ namespace ScannerWeb.Services
                     return;
 //                byte[] buffer = new byte[200];
   //              sPort.Read(buffer, 0, buffer.Length);
-                string res = sPort.ReadExisting();
+                string res = sPort.ReadLine();
                 var ar = res.Split('\n');
                 decimal _o = 0;
                 logger.LogCritical("DATA RAW1:" + res);
@@ -194,18 +195,18 @@ namespace ScannerWeb.Services
                                     continue;
                                 }
                                 _sPort.Open();
-                                byte[] buffer = Encoding.UTF8.GetBytes("READ\n");
-                                _sPort.Write(buffer, 0, buffer.Length);
-                                buffer = Encoding.UTF8.GetBytes("CMD,1234\n");
-                                string res = _sPort.ReadExisting();
-                                logger.LogCritical($"MSG1: {res}");
-                                _sPort.Write(buffer, 0, buffer.Length);
-                                res = _sPort.ReadExisting();
-                                logger.LogCritical("OPEN ARDUINO");
-                                logger.LogCritical($"MSG2: {res}");
+                                //byte[] buffer = Encoding.UTF8.GetBytes("READ\n");
+                                //_sPort.Write(buffer, 0, buffer.Length);
+                                //buffer = Encoding.UTF8.GetBytes("CMD,1234\n");
+                                //string res = _sPort.ReadExisting();
+                                //logger.LogCritical($"MSG1: {res}");
+                                //_sPort.Write(buffer, 0, buffer.Length);
+                                //res = _sPort.ReadExisting();
+                                //logger.LogCritical("OPEN ARDUINO");
+                                //logger.LogCritical($"MSG2: {res}");
                             }
                             await ReadData(_sPort);
-                            await Task.Delay(2000);
+                            await Task.Delay(100);
                         }
                         taskCancel = new CancellationTokenSource();
                         await Connect(listenerToken);
@@ -248,6 +249,16 @@ namespace ScannerWeb.Services
 
             byte[] buffer = Encoding.UTF8.GetBytes("RESET");
             _sPort.Write(buffer, 0, buffer.Length);
+            bool s = _sPort.DsrHolding;
+            _sPort.DtrEnable = true;
+            await Task.Delay(100);
+            s = _sPort.DsrHolding;
+            _sPort.DtrEnable = false;
+            await Task.Delay(100);
+            s = _sPort.DsrHolding;
+            _sPort.DtrEnable = true;
+            string res = _sPort.ReadExisting();
+
             await _sPort.BaseStream.FlushAsync();
             _sPort.Close();
             logger.LogInformation($"Connection Status: {_sPort.IsOpen}");
