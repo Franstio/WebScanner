@@ -49,7 +49,7 @@ namespace ScannerWeb.Services
                 sPort.NewLine = "\r\n";
 //                sPort.DataReceived += SPort_DataReceived;
 //                sPort.ErrorReceived += SPort_ErrorReceived;
-                sPort.ReadTimeout = 1200;
+                sPort.ReadTimeout = 5000;
 
                 return sPort;
             }
