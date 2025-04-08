@@ -149,7 +149,7 @@ namespace ScannerWeb.Services
             catch (Exception ex)
             {
                 logger.LogInformation(ex.Message + " | " + ex.StackTrace);
-                await Disconnect();
+                await CloseConnection();
             }
         }
         private void CleanObservers()
@@ -248,6 +248,11 @@ namespace ScannerWeb.Services
                 for (int i=0;i<Observers.Count;i++)
                     Observers[i].OnCompleted();
             }
+            await CloseConnection();
+            
+        }
+        async Task CloseConnection()
+        {
 
             byte[] buffer = Encoding.UTF8.GetBytes("RESET");
             _sPort.Write(buffer, 0, buffer.Length);
@@ -267,7 +272,6 @@ namespace ScannerWeb.Services
             _sPort.Dispose();
             await ResetUSB();
             await Task.Delay(500);
-            
         }
 
         public async void Dispose()
