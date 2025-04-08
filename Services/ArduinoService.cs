@@ -43,7 +43,7 @@ namespace ScannerWeb.Services
                 sPort.Parity = Parity.None;
                 sPort.StopBits = StopBits.One;
                 sPort.DataBits = 8;
-                sPort.Handshake = Handshake.XOnXOff;
+//                sPort.Handshake = Handshake.XOnXOff;
                 sPort.RtsEnable = true;
                 sPort.DtrEnable = true;
                 sPort.NewLine = "\r\n";
@@ -206,7 +206,7 @@ namespace ScannerWeb.Services
                                 //logger.LogCritical($"MSG2: {res}");
                             }
                             await ReadData(_sPort);
-                            await Task.Delay(1000);
+                            await Task.Delay(1500);
                         }
                         taskCancel = new CancellationTokenSource();
                         await Connect(listenerToken);
