@@ -121,6 +121,8 @@ namespace ScannerWeb.Services
 //                byte[] buffer = new byte[200];
   //              sPort.Read(buffer, 0, buffer.Length);
                 string res = sPort.ReadLine();
+                sPort.DiscardInBuffer();
+                sPort.DiscardOutBuffer();
                 var ar = res.Split('\n');
                 decimal _o = 0;
                 logger.LogCritical("DATA RAW1:" + res);
