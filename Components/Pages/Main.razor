@@ -227,6 +227,7 @@
     {
         if (!isPreRender)
         {
+            logger.LogCritical("Dispose called");
             CloseDependecies();
             registration?.Dispose();
         }

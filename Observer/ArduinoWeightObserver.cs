@@ -21,22 +21,30 @@ namespace ScannerWeb.Observer
 
         public async void OnNext(string message)
         {
-//            Trace.WriteLine(message);
-            if (message.Contains("?") || string.IsNullOrEmpty(message) )
+            //            Trace.WriteLine(message);
+            try
             {
+                if (message.Contains("?") || string.IsNullOrEmpty(message))
+                {
+                    return;
+                }
+                decimal _weight;
+                bool isValid = decimal.TryParse(message.Replace(" ", "").Trim(), out _weight);
+                //            Trace.WriteLine("isvalid: " + isValid);
+                if (!isValid)
+                {
+                    return;
+                }
+                if (_weight < -200)
+                    return;
+                if (WeightReceivedEvent is not null)
+                    await WeightReceivedEvent(_weight);
+            }
+            catch (Exception err)
+            {
+                Trace.WriteLine(err.Message);
                 return;
             }
-            decimal _weight ;
-            bool isValid = decimal.TryParse(message.Replace(" ", "").Trim(), out _weight);
-            //            Trace.WriteLine("isvalid: " + isValid);
-            if (!isValid)
-            {
-                return;
-            }
-            if (_weight < -200)
-                return;
-            if (WeightReceivedEvent is not null)
-                await WeightReceivedEvent(_weight);
         }
         public delegate Task WeightReceived(decimal weight);
         public void Unsubscribe()
