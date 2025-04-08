@@ -206,7 +206,7 @@ namespace ScannerWeb.Services
                                 //logger.LogCritical($"MSG2: {res}");
                             }
                             await ReadData(_sPort);
-                            await Task.Delay(100);
+                            await Task.Delay(1000);
                         }
                         taskCancel = new CancellationTokenSource();
                         await Connect(listenerToken);
