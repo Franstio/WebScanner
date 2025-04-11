@@ -92,6 +92,8 @@ namespace ScannerWeb.Services
                     NotifyInstruction("Lakukan verifikasi pada Scanner Screen");
                     using (var client = BuildHttpClient())
                     {
+
+                        logger.LogCritical($"Current Weight Main Service Before send to pidsg: {CurrentWeight}");
                         decimal dataKg = CurrentWeight;
                         decimal finalWeight = step.Type == MainProcessModel.ProcessType.Top ? dataKg - GetPrevWeight() : 0;
                         string activity = step.Type == MainProcessModel.ProcessType.Top ? "Dispose": "Collection";
@@ -146,6 +148,7 @@ namespace ScannerWeb.Services
             CurrentWeight = _weight;
             try
             {
+                logger.LogCritical($"Current Weight Main Service: {CurrentWeight}");
                 using (var client = BuildHttpClient())
                 {
                     var payload = new
